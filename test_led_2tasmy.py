@@ -49,7 +49,7 @@ while True:
 
     # Druga połowa (14–27) niebieska
     for i in range(LED_COUNT):
-        color = Color(0, 0, 255) if i >= 14 else Color(0, 0, 0)
+        color = Color(0, 255, 0) if i >= 14 else Color(0, 0, 0)
         strip1.setPixelColor(i, color)
         strip2.setPixelColor(i, color)
     strip1.show()
