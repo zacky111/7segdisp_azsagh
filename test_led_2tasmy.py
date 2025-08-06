@@ -27,17 +27,20 @@ def signal_handler(sig, frame):
     clear_strip(strip2)
     sys.exit(0)
 
-def print_strip(data_frame:str, strip1=strip1, strip2=strip2):
-    segm_on_strip1=[]
-    segm_on_strip2=[]
-    num=0
+def print_strip(data_frame: str, strip1=strip1, strip2=strip2):
+    segm_on_strip1 = []
+    segm_on_strip2 = []
+
+    mapping_strip1 = [2, 3, 0, 1]  # mapowanie logicznego numeru cyfry na fizyczne połączenie
+
     for num, elem in enumerate(data_frame):
+        part_segm = liczbyWysw[elem]
+
         if num < 4:
-            part_segm = liczbyWysw[elem]
-            part_segm = [x + num * 7 for x in part_segm]
+            mapped_num = mapping_strip1[num]
+            part_segm = [x + mapped_num * 7 for x in part_segm]
             segm_on_strip1 += part_segm
         else:
-            part_segm = liczbyWysw[elem]
             part_segm = [x + (num - 4) * 7 for x in part_segm]
             segm_on_strip2 += part_segm
 
