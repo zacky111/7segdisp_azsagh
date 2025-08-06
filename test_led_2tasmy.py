@@ -65,6 +65,9 @@ signal.signal(signal.SIGINT, signal_handler)
 segm_to_print=segm_from_frame(data_frame=data_frame_test)
 print_strip(segm_to_print)
 
+def format_number_as_8digit_string(n: int) -> str:
+    # Ogranicz do 8 cyfr, obetnij nadmiar z lewej
+    return str(n).zfill(8)[-8:]
 
 
 while True:
@@ -85,6 +88,16 @@ while True:
     strip1.show()
     strip2.show()
     time.sleep(1)"""
+
+        # Konwertuj licznik do napisu z 8 cyframi
+    data_frame = format_number_as_8digit_string(counter)
+    
+    # Oblicz segmenty i wyświetl
+    segm_to_print = segm_from_frame(data_frame=data_frame)
+    print_strip(segm_to_print)
+
+    counter += 1
+    time.sleep(1)
 
 
 
