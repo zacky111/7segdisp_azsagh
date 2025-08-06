@@ -69,7 +69,7 @@ def format_number_as_8digit_string(n: int) -> str:
     # Ogranicz do 8 cyfr, obetnij nadmiar z lewej
     return str(n).zfill(8)[-8:]
 
-
+counter=0
 while True:
     """# Pierwsza połowa (0–13) czerwona
     for i in range(sc.LED_COUNT):
