@@ -97,7 +97,7 @@ while True:
     print_strip(segm_to_print)
 
     counter += 1
-    time.sleep(1)
+    time.sleep(0.1)
 
 
 
