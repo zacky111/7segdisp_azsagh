@@ -57,7 +57,7 @@ for i in range(sc.LED_COUNT):
 
 for k in range(sc.LED_COUNT):
     color = Color(255, 0, 0) if k in segm_to_print[1] else Color(0, 0, 0)
-    strip1.setPixelColor(k, color)
+    strip2.setPixelColor(k, color)
 
 
 
