@@ -44,12 +44,34 @@ def print_strip(data_frame:str, strip1=strip1, strip2=strip2):
     print("segm1: ", segm_on_strip1)
     print("segm2: ", segm_on_strip2)
 
+    return [segm_on_strip1, segm_on_strip2]
+
 signal.signal(signal.SIGINT, signal_handler)
 
-print_strip(data_frame=data_frame_test)
+segm_to_print=print_strip(data_frame=data_frame_test)
+
+## strip1
+for i in range(sc.LED_COUNT):
+    color = Color(255, 0, 0) if i in segm_to_print[0] else Color(0, 0, 0)
+    strip1.setPixelColor(i, color)
+
+for k in range(sc.LED_COUNT):
+    color = Color(255, 0, 0) if k in segm_to_print[1] else Color(0, 0, 0)
+    strip1.setPixelColor(k, color)
+
+
+
+
+"""if i in range(15,29):
+        color = Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0)
+        strip2.setPixelColor(i, color)"""
+
+strip1.show()
+strip2.show()
+
 
 while True:
-    # Pierwsza połowa (0–13) czerwona
+    """# Pierwsza połowa (0–13) czerwona
     for i in range(sc.LED_COUNT):
         color = Color(255, 0, 0) if i < 14 else Color(0, 0, 0)
         strip1.setPixelColor(i, color)
@@ -65,7 +87,7 @@ while True:
         strip2.setPixelColor(i, color)
     strip1.show()
     strip2.show()
-    time.sleep(1)
+    time.sleep(1)"""
 
 
 
