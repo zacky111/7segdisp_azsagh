@@ -14,7 +14,7 @@ strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA, sc.L
 strip1.begin()
 strip2.begin()
 
-data_frame_test="11000023"
+data_frame_test="66666666"
 
 def clear_strip(strip):
     for i in range(strip.numPixels()):
