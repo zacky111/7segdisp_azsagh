@@ -16,9 +16,9 @@ try:
     currentData=[]
     while True:
         if ser.in_waiting > 0:  # jeśli są dane w buforze
-
+            print(data.hex())
             data = ser.read(ser.in_waiting)  
-            currentData.append(data.decode('latin-1', errors='ignore'))
+            currentData.append(data)
 
             if currentData[-1] =='\r':
                 print(currentData)
