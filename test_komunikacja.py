@@ -13,11 +13,15 @@ timeout=1
 print(f"Otwarty port: {ser.portstr}")
 
 try:
+    currentData=[]
     while True:
-        if ser.in_waiting:  # jeśli są dane w buforze
+        if ser.in_waiting > 0:  # jeśli są dane w buforze
+
+
             line = ser.readline().decode(errors='ignore').strip()
-            if line:
-                print(f"Odebrano: {line}")
+            if currentData[-1] =='\r':
+                print(currentData)
+                currentData=[]
 except KeyboardInterrupt:
     print("\nZamykam...")
     ser.close()
