@@ -3,7 +3,7 @@ import serial
 # Otwórz port szeregowy
 ser = serial.Serial(
     port='/dev/ttyUSB0',
-    baudrate=1200,  # ustaw zgodnie z dokumentacją Microgate RaceTime2
+    baudrate=9600,  # ustaw zgodnie z dokumentacją Microgate RaceTime2
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
