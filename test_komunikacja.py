@@ -17,11 +17,13 @@ try:
     while True:
         if ser.in_waiting > 0:  # jeśli są dane w buforze
 
+            data = ser.read(ser.in_waiting)  
+            currentData.append(data.decode('utf-8'))
 
-            line = ser.readline().decode(errors='ignore').strip()
             if currentData[-1] =='\r':
                 print(currentData)
                 currentData=[]
+
 except KeyboardInterrupt:
     print("\nZamykam...")
     ser.close()
