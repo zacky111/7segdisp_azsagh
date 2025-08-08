@@ -19,6 +19,8 @@ try:
             data = ser.read(ser.in_waiting)  
             print(data.hex())
 
+            print ("---eol----")
+
 except KeyboardInterrupt:
     print("\nZamykam...")
     ser.close()
