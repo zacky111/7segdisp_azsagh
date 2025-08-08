@@ -17,13 +17,8 @@ try:
     while True:
         if ser.in_waiting:  # jeśli są dane w buforze
             data = ser.read(ser.in_waiting)  
-            currentData.append(data)
+            print(data.hex())
 
-            if currentData[-1] =='\r':
-
-                print(currentData)
-                currentData = []
-                
 except KeyboardInterrupt:
     print("\nZamykam...")
     ser.close()
