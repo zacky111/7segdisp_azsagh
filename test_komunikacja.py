@@ -3,7 +3,7 @@ import serial
 # Otwórz port szeregowy
 ser = serial.Serial(
 port='/dev/ttyUSB0',  
-baudrate=9600,        
+baudrate=1200,        
 bytesize=serial.EIGHTBITS,  
 parity=serial.PARITY_NONE,  
 stopbits=serial.STOPBITS_ONE,  
