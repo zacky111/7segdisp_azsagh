@@ -82,7 +82,10 @@ def parse_time_str(tstr):
     except Exception:
         return None, None, None
     
-global ser, time_str, float_time, secs, ms
+global ser
+global time_str
+time_str=""
+
 
 def comm_func():
     PORT = '/dev/ttyUSB0'
@@ -194,7 +197,7 @@ while True:
     # Konwertuj licznik do napisu z 8 cyframi
     
     #data_frame = format_number_as_8digit_string(counter) # wersja automatyczna - licznik
-    data_frame = format_number_as_8digit_string(float_time)
+    data_frame = format_number_as_8digit_string(int(time_str))
     
     # Oblicz segmenty i wyświetl
     segm_to_print = segm_from_frame(data_frame=data_frame)
