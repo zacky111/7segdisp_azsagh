@@ -4,6 +4,7 @@ import sys
 import re
 import threading
 import serial
+import RPi.GPIO as GPIO
 from rpi_ws281x import PixelStrip, Color
 
 import src.stripe_config as sc
@@ -45,6 +46,22 @@ def print_strip(segm_to_print):
         strip2.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0))
     strip1.show()
     strip2.show()
+
+# ---------------- DOTS -------------------------
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(dc.LED_PIN, GPIO.OUT)
+GPIO.setup(dc.LED_PIN2, GPIO.OUT)
+GPIO.setup(dc.LED_PIN3, GPIO.OUT)
+
+def dots_on(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2,LED_PIN3=dc.LED_PIN3):
+    GPIO.output(LED_PIN, GPIO.HIGH)
+    GPIO.output(LED_PIN2, GPIO.HIGH)
+    GPIO.output(LED_PIN3, GPIO.HIGH)
+
+def dots_off(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2,LED_PIN3=dc.LED_PIN3):
+    GPIO.output(LED_PIN, GPIO.LOW)
+    GPIO.output(LED_PIN2, GPIO.LOW)
+    GPIO.output(LED_PIN3, GPIO.LOW)
 
 # ---------------- COMMUNICATION ----------------
 stop_event = threading.Event()
@@ -171,6 +188,7 @@ def signal_handler(sig, frame):
     stop_event.set()
     thread_comm.join()
     thread_disp.join()
+    GPIO.cleanup()  # wyłączenie kropek
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -178,6 +196,8 @@ signal.signal(signal.SIGINT, signal_handler)
 # ---------------- RUN THREADS ----------------
 thread_comm = threading.Thread(target=comm_func)
 thread_disp = threading.Thread(target=display_func)
+
+dots_on()
 
 thread_comm.start()
 thread_disp.start()
