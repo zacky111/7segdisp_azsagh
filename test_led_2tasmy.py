@@ -84,7 +84,7 @@ def parse_time_str(tstr):
     
 global ser
 global time_str
-time_str=""
+time_str="0"
 
 
 def comm_func():
