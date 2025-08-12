@@ -119,14 +119,36 @@ def display_func():
     while not stop_event.is_set():
         with data_lock:
             t_str = latest_time
+
         try:
-            val = int(float(t_str))
+            val = float(t_str)
         except:
-            val = 0
-        data_frame = format_number_as_8digit_string(val)
-        segm_to_print = segm_from_frame(data_frame)
+            val = 0.0
+
+        minutes = int(val // 60)
+        seconds = int(val % 60)
+        hundredths = int(round((val - int(val)) * 100))  # setne sekundy
+
+        # Składamy w tablicę 8 pozycji: [pusty, pusty, min, min, sec, sec, cent, cent]
+        digits = [
+            ' ', ' ',                                 # 2 lewe puste
+            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # minuty
+            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sekundy
+            f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]  # setne
+        ]
+
+        # Zamiana zer wiodących na spacje w minutach i sekundach
+        if digits[2] == '0':
+            digits[2] = ' '
+        if digits[4] == '0' and digits[2] == ' ':  # jeśli minuta pusta i sekundy mają zero dziesiątek
+            digits[4] = ' '
+
+        # Wyświetlenie
+        segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print)
+
         time.sleep(0.1)
+
 
 # ---------------- SIGNAL HANDLER ----------------
 def signal_handler(sig, frame):
