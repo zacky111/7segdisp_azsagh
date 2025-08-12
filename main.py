@@ -58,6 +58,7 @@ data_lock = threading.Lock()
 start_time_local = None
 display_time = 0.0
 running = False
+finished = False
 finish_time_shown_until = 0
 
 # ===============================
@@ -76,7 +77,7 @@ def parse_time_str(tstr):
 # COMMUNICATION THREAD
 # ===============================
 def comm_func():
-    global start_time_local, display_time, running, finish_time_shown_until
+    global start_time_local, display_time, running, finished, finish_time_shown_until
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
     ser = serial.Serial(
@@ -123,10 +124,12 @@ def comm_func():
                         # START
                         start_time_local = time.time() - val
                         running = True
+                        finished = False
                         display_time = val
                     elif running and val is not None:
                         if '.' in time_str_local:  # META – ms w czasie
                             running = False
+                            finished = True
                             display_time = val
                             finish_time_shown_until = time.time() + 5
                         else:
@@ -136,7 +139,7 @@ def comm_func():
                             if abs(drift) > 0.05:
                                 start_time_local += drift
                             display_time = measured_now
-                    elif not running and val is not None and '.' not in time_str_local:
+                    elif not running and finished:
                         # ignorujemy dodatkowe ramki po mecie
                         pass
 
@@ -147,12 +150,12 @@ def comm_func():
 # DISPLAY THREAD
 # ===============================
 def display_func():
-    global start_time_local, display_time, running, finish_time_shown_until
+    global start_time_local, display_time, running, finished, finish_time_shown_until
     while not stop_event.is_set():
         with data_lock:
             if running and start_time_local is not None:
                 t_val = time.time() - start_time_local
-            elif not running and time.time() < finish_time_shown_until:
+            elif finished and time.time() < finish_time_shown_until:
                 t_val = display_time
             else:
                 clear_strip(strip1)
