@@ -113,18 +113,18 @@ def comm_func():
                             running = True
                             display_time = val
                         elif running:
-                            measured_now = time.time() - start_time_local
-                            drift = val - measured_now
-                            if abs(drift) > 0.05:
-                                start_time_local += drift
-                            display_time = measured_now
-
-                            # Wykrywanie mety: jeśli czas z RaceTime2 jest znacznie większy od poprzedniego i przestaje się zmieniać
-                            if hasattr(comm_func, "last_val"):
-                                if abs(val - comm_func.last_val) < 0.001:  # praktycznie brak zmiany
-                                    running = False
-                                    display_time = val
-                            comm_func.last_val = val
+                            if '.' in time_str_local:  # META – czas z milisekundami
+                                running = False
+                                display_time = val
+                                # korekta start_time_local jeśli chcesz, żeby był spójny
+                                start_time_local = time.time() - val
+                            else:
+                                # zwykła ramka z pełnymi sekundami → ewentualna korekta dryfu
+                                measured_now = time.time() - start_time_local
+                                drift = val - measured_now
+                                if abs(drift) > 0.05:
+                                    start_time_local += drift
+                                display_time = measured_now
 
                 # debug print
                 print(f"[{frame_type}] czas: {time_str_local}")
