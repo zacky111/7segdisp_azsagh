@@ -20,11 +20,7 @@ strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA, sc.L
 strip1.begin()
 strip2.begin()
 
-def signal_handler(sig, frame):
-    print("\nWyłączam...")
-    clear_strip(strip1)
-    clear_strip(strip2)
-    sys.exit(0)
+
 
 ###### functions for usage of stripes:
 def clear_strip(strip):
@@ -65,12 +61,11 @@ def print_strip(segm_to_print, strip1=strip1, strip2=strip2):
         strip1.show()
         strip2.show()
 
-signal.signal(signal.SIGINT, signal_handler) ## konieczne, aby wyłączać ctrl+c
+
 
 def format_number_as_8digit_string(n: int) -> str:
     # Ogranicz do 8 cyfr, obetnij nadmiar z lewej
     return str(n).zfill(8)[-8:]
-
 
 
 #### communcation - functions, variables etc.
@@ -87,6 +82,8 @@ def parse_time_str(tstr):
 def comm_func():
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
+
+    global ser
 
     ser = serial.Serial(
         port=PORT,
@@ -165,9 +162,19 @@ def comm_func():
                 else:
                     print(f"[{ts:8.3f}s] [{frame_type}] Zawodnik: {bib_disp} — czas: -")
 
+def signal_handler(sig, frame):
+    print("\nWyłączam...")
+    clear_strip(strip1)
+    clear_strip(strip2)
+    ser.close()
+
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler) ## konieczne, aby wyłączać ctrl+c
+
 
 counter=0
-threads=[]
+#threads=[]
 thread_comm=threading.Thread(target=comm_func)
 thread_comm.start()
 
