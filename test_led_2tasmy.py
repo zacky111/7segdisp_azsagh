@@ -20,7 +20,7 @@ strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA, sc.L
 strip1.begin()
 strip2.begin()
 
-def signal_handler(sig, frame, strip1, strip2):
+def signal_handler(sig, frame):
     print("\nWyłączam...")
     clear_strip(strip1)
     clear_strip(strip2)
