@@ -81,12 +81,14 @@ def parse_time_str(tstr):
         return val, secs, ms
     except Exception:
         return None, None, None
+    
+global ser, time_str, float_time, secs, ms
 
 def comm_func():
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
 
-    global ser, time_str, float_time, secs, ms
+    
 
     ser = serial.Serial(
         port=PORT,
