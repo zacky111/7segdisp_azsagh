@@ -107,7 +107,7 @@ def comm_func():
 
     buffer = ""
 
-    while stop_event.is_set():
+    while not stop_event.is_set():
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
             # latin-1 żeby nie tracić bajtów; później usuniemy sterujące
