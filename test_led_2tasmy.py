@@ -45,8 +45,8 @@ def segm_from_frame(data_frame: str, strip1=strip1, strip2=strip2):
             part_segm = [x + (num - 4) * 7 for x in part_segm]
             segm_on_strip2 += part_segm
 
-    print("segm1: ", segm_on_strip1)
-    print("segm2: ", segm_on_strip2)
+    #print("segm1: ", segm_on_strip1)
+    #print("segm2: ", segm_on_strip2)
 
     return [segm_on_strip1, segm_on_strip2]
 
