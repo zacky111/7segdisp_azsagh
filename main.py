@@ -108,21 +108,23 @@ def comm_func():
                     val, secs, ms = parse_time_str(time_str_local)
 
                     with data_lock:
-                        if frame_type == 'A':  # przykładowo: ramka startu
+                        if frame_type == 'A' and not running:  # Start
                             start_time_local = time.time() - val
                             running = True
                             display_time = val
-                        elif frame_type == 'F':  # przykładowo: meta
-                            running = False
-                            display_time = val
-                        else:
-                            # korekta w trakcie biegu
-                            if running and start_time_local is not None:
-                                measured_now = time.time() - start_time_local
-                                drift = val - measured_now
-                                if abs(drift) > 0.05:  # większe niż 50 ms → korekta
-                                    start_time_local += drift
-                                display_time = measured_now
+                        elif running:
+                            measured_now = time.time() - start_time_local
+                            drift = val - measured_now
+                            if abs(drift) > 0.05:
+                                start_time_local += drift
+                            display_time = measured_now
+
+                            # Wykrywanie mety: jeśli czas z RaceTime2 jest znacznie większy od poprzedniego i przestaje się zmieniać
+                            if hasattr(comm_func, "last_val"):
+                                if abs(val - comm_func.last_val) < 0.001:  # praktycznie brak zmiany
+                                    running = False
+                                    display_time = val
+                            comm_func.last_val = val
 
                 # debug print
                 print(f"[{frame_type}] czas: {time_str_local}")
