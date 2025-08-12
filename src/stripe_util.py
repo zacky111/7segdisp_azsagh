@@ -1,16 +1,19 @@
-"""				  3						 10
+import sys
+from rpi_ws281x import PixelStrip, Color
+
+"""				  2						  9
 			.-----------.			.-----------.
 			|			|			|			|
-		   4|			|2		  11|			|9
+		   3|			|1		  10|			|8
 			|			|			|			|
-			|	  1		|			|	  8		|
+			|	  0		|			|	  7		|
 GPIO--------.-----------.-----------.-----------.
 			|			|			|			|
 			|			|			|			|
-		   5|			|7		  12|			|14
+		   4|			|6		  11|			|13
 			|			|			|			|
 			.-----------.			.-----------.
-				  6						  13
+				  5						  12
 """
 
 """liczbyWysw = {
@@ -39,7 +42,7 @@ liczbyWysw = {
     "9": [0, 1, 2, 3, 5, 6]
 }
 
-def sum_segm(liczby_do_wysw: int) -> list:
+"""def sum_segm(liczby_do_wysw: int) -> list:
 
 	# funkcja przyjmuje dwie liczby, które mają odpowiadać za jedną taśmę (np. minuty, sekundy itd.)
 	# przekształca w dwie liczby i sumuje w jedną zbiorczą listę numerów segm_on, której mają zostać wyświetlone
@@ -48,7 +51,7 @@ def sum_segm(liczby_do_wysw: int) -> list:
     liczba_1 = liczby_str[0]
     liczba_2 = liczby_str[1]
 
-    return liczbyWysw[liczba_1] + liczbyWysw[liczba_2]
+    return liczbyWysw[liczba_1] + liczbyWysw[liczba_2]"""
 
 """kolory = {
 "bialy":(0,0,0),
