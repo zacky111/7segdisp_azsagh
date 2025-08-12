@@ -69,6 +69,9 @@ def format_number_as_8digit_string(n: int) -> str:
 
 
 #### communcation - functions, variables etc.
+
+stop_event = threading.Event()
+
 def parse_time_str(tstr):
     """Zwraca (float_seconds, secs_int, ms_int) lub (None, None, None) jeśli brak."""
     try:
@@ -99,7 +102,7 @@ def comm_func():
 
     buffer = ""
 
-    while True:
+    while stop_event.is_set():
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
             # latin-1 żeby nie tracić bajtów; później usuniemy sterujące
@@ -162,11 +165,15 @@ def comm_func():
                 else:
                     print(f"[{ts:8.3f}s] [{frame_type}] Zawodnik: {bib_disp} — czas: -")
 
+    ser.close()
+    print("Port zamknięty, wątek kończy działanie")
+
 def signal_handler(sig, frame):
     print("\nWyłączam...")
     clear_strip(strip1)
     clear_strip(strip2)
-    ser.close()
+    stop_event.set()  # sygnał zakończenia wątku
+    thread_comm.join()  # czekaj na zakończenie wątku
 
     sys.exit(0)
 
