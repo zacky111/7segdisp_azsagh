@@ -185,6 +185,8 @@ counter=0
 thread_comm=threading.Thread(target=comm_func)
 thread_comm.start()
 
+float_time=0
+
 
 while True:
     # Konwertuj licznik do napisu z 8 cyframi
