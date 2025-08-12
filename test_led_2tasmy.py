@@ -65,7 +65,7 @@ def print_strip(segm_to_print, strip1=strip1, strip2=strip2):
         strip1.show()
         strip2.show()
 
-signal.signal(sig=signal.SIGINT, frame=signal_handler) ## konieczne, aby wyłączać ctrl+c
+signal.signal(signal.SIGINT, signal_handler) ## konieczne, aby wyłączać ctrl+c
 
 def format_number_as_8digit_string(n: int) -> str:
     # Ogranicz do 8 cyfr, obetnij nadmiar z lewej
