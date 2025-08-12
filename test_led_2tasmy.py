@@ -14,8 +14,6 @@ strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA, sc.L
 strip1.begin()
 strip2.begin()
 
-data_frame_test="66666666"
-
 def clear_strip(strip):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, Color(0, 0, 0))
@@ -60,35 +58,16 @@ def print_strip(segm_to_print, strip1=strip1, strip2=strip2):
         strip1.show()
         strip2.show()
 
-signal.signal(signal.SIGINT, signal_handler)
-
-segm_to_print=segm_from_frame(data_frame=data_frame_test)
-print_strip(segm_to_print)
+#signal.signal(signal.SIGINT, signal_handler)
 
 def format_number_as_8digit_string(n: int) -> str:
     # Ogranicz do 8 cyfr, obetnij nadmiar z lewej
     return str(n).zfill(8)[-8:]
 
+
+
 counter=0
 while True:
-    """# Pierwsza połowa (0–13) czerwona
-    for i in range(sc.LED_COUNT):
-        color = Color(255, 0, 0) if i < 14 else Color(0, 0, 0)
-        strip1.setPixelColor(i, color)
-        strip2.setPixelColor(i, color)
-    strip1.show()
-    strip2.show()
-    time.sleep(1)
-
-    # Druga połowa (14–27) niebieska
-    for i in range(sc.LED_COUNT):
-        color = Color(0, 255, 0) if i >= 14 else Color(0, 0, 0)
-        strip1.setPixelColor(i, color)
-        strip2.setPixelColor(i, color)
-    strip1.show()
-    strip2.show()
-    time.sleep(1)"""
-
         # Konwertuj licznik do napisu z 8 cyframi
     data_frame = format_number_as_8digit_string(counter)
     
