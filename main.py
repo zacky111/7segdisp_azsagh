@@ -26,9 +26,17 @@ def clear_strip(strip):
 def segm_from_frame(data_frame: str, strip1=strip1, strip2=strip2):
     segm_on_strip1 = []
     segm_on_strip2 = []
-    mapping_strip1 = [2, 3, 0, 1]
+
+    mapping_strip1 = [2, 3, 0, 1]  # mapowanie logicznego numeru cyfry na fizyczne połączenie
+
     for num, elem in enumerate(data_frame):
-        part_segm = liczbyWysw[elem]
+        # upewnij się, że elem to string; jeśli nie, pomiń
+        if not isinstance(elem, str) or elem == '':
+            continue
+
+        # bezpieczne pobranie listy segmentów (domyślnie pusta lista dla nieznanych znaków)
+        part_segm = liczbyWysw.get(elem, [])
+
         if num < 4:
             mapped_num = mapping_strip1[num]
             part_segm = [x + mapped_num * 7 for x in part_segm]
@@ -36,12 +44,16 @@ def segm_from_frame(data_frame: str, strip1=strip1, strip2=strip2):
         else:
             part_segm = [x + (num - 4) * 7 for x in part_segm]
             segm_on_strip2 += part_segm
+
     return [segm_on_strip1, segm_on_strip2]
 
-def print_strip(segm_to_print):
+
+def print_strip(segm_to_print, strip1=strip1, strip2=strip2):
+    # ustaw wszystkie pixele, potem pokaż raz (wydajniejsze)
     for i in range(sc.LED_COUNT):
         strip1.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[0] else Color(0, 0, 0))
         strip2.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0))
+
     strip1.show()
     strip2.show()
 
