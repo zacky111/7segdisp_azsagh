@@ -71,6 +71,7 @@ data_lock = threading.Lock()
 start_time_local = None
 display_time = 0.0
 running = False
+finished = False   # <- NOWA flaga
 
 def parse_time_str(tstr):
     try:
@@ -82,7 +83,7 @@ def parse_time_str(tstr):
         return None, None, None
 
 def comm_func():
-    global start_time_local, display_time, running
+    global start_time_local, display_time, running, finished
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
     ser = serial.Serial(PORT, BAUD, parity=serial.PARITY_NONE,
@@ -125,29 +126,37 @@ def comm_func():
                     val, secs, ms = parse_time_str(time_str_local)
 
                     with data_lock:
-                        if frame_type == 'A' and not running:  # Start
+                        if frame_type == 'A' and not running and not finished:
+                            # START
                             start_time_local = time.time() - val
                             running = True
+                            finished = False
                             display_time = val
+
                         elif running:
-                            if '.' in time_str_local:  # META – czas z milisekundami
+                            if '.' in time_str_local:  # META – wynik z ms
                                 running = False
+                                finished = True
                                 display_time = val
-                                # korekta start_time_local jeśli chcesz, żeby był spójny
-                                start_time_local = time.time() - val
+                                # zatrzymujemy czas tutaj, nie zmieniamy już dalej
                             else:
-                                # zwykła ramka z pełnymi sekundami → ewentualna korekta dryfu
+                                # zwykła ramka sekundowa → korekta dryfu
                                 measured_now = time.time() - start_time_local
                                 drift = val - measured_now
                                 if abs(drift) > 0.05:
                                     start_time_local += drift
                                 display_time = measured_now
 
+                        elif finished:
+                            # po mecie ignorujemy WSZYSTKO (także 0.00!)
+                            pass
+
                 # debug print
                 print(f"[{frame_type}] czas: {time_str_local}")
 
     ser.close()
     print("Port zamknięty, wątek kończy działanie")
+
 
 # ---------------- DISPLAY THREAD ----------------
 def display_func():
