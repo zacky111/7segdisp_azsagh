@@ -27,7 +27,7 @@ def clear_strip(strip):
 def segm_from_frame(data_frame: list, strip1=strip1, strip2=strip2):
     segm_on_strip1 = []
     segm_on_strip2 = []
-    mapping_strip1 = [2, 3, 0, 1]
+    mapping_strip1 = [2, 3, 0, 1]  # map logic->physical for first 4 digits
 
     for num, elem in enumerate(data_frame):
         part_segm = liczbyWysw.get(elem, [])
@@ -53,12 +53,12 @@ GPIO.setup(dc.LED_PIN, GPIO.OUT)
 GPIO.setup(dc.LED_PIN2, GPIO.OUT)
 GPIO.setup(dc.LED_PIN3, GPIO.OUT)
 
-def dots_on(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2,LED_PIN3=dc.LED_PIN3):
+def dots_on(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
     GPIO.output(LED_PIN, GPIO.HIGH)
     GPIO.output(LED_PIN2, GPIO.HIGH)
     GPIO.output(LED_PIN3, GPIO.HIGH)
 
-def dots_off(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2,LED_PIN3=dc.LED_PIN3):
+def dots_off(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
     GPIO.output(LED_PIN, GPIO.LOW)
     GPIO.output(LED_PIN2, GPIO.LOW)
     GPIO.output(LED_PIN3, GPIO.LOW)
@@ -71,13 +71,10 @@ data_lock = threading.Lock()
 start_time_local = None
 display_time = 0.0
 running = False
-finished = False   # <- NOWA flaga
-
-running = False
 finished = False
-finish_time_shown_until = 0
+finish_time_shown_until = 0.0
 blink_state = True
-blink_last_toggle = 0
+blink_last_toggle = 0.0
 
 def parse_time_str(tstr):
     try:
@@ -90,6 +87,7 @@ def parse_time_str(tstr):
 
 def comm_func():
     global start_time_local, display_time, running, finished
+    global finish_time_shown_until, blink_state, blink_last_toggle  # <- WAŻNE!
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
     ser = serial.Serial(PORT, BAUD, parity=serial.PARITY_NONE,
@@ -120,37 +118,34 @@ def comm_func():
                 cleaned = re.sub(r'[^0-9A-Za-z\s\.\-]', '', raw_frame)
                 frame_type = cleaned[0].upper() if cleaned else '?'
 
+                # RaceTime2: czas zwykle w ramkach A; przy "Sxxxx" najpierw id zawodnika itd.
                 m = re.search(r'[Ss](\d{1,6})', cleaned)
                 if m:
                     rest = cleaned[m.end():]
                     tmatch = re.search(r'(\d+\.\d+|\d+)', rest)
                 else:
-                    tmatch = re.search(r'(\d+\.\d+)', cleaned)
+                    tmatch = re.search(r'(\d+\.\d+|\d+)', cleaned)
 
                 time_str_local = tmatch.group(1) if tmatch else None
-                if time_str_local:
-                    val, secs, ms = parse_time_str(time_str_local)
 
-                    with data_lock:
-                        if frame_type == 'A':
-                            # START nowego biegu
-                            start_time_local = time.time() - val
-                            running = True
-                            finished = False
-                            display_time = val
-                            finish_time_shown_until = 0
-                            blink_state = True
-                            blink_last_toggle = time.time()
+                with data_lock:
+                    if time_str_local:
+                        val, secs, ms = parse_time_str(time_str_local)
 
-                        elif running:
-                            if '.' in time_str_local:  # META – wynik z ms
-                                running = False
-                                finished = True
+                        # --- START: tylko gdy nie biegniemy; jeśli mrugamy po mecie,
+                        # pozwól "przebić" się nowemu startowi tylko dla małych wartości (<=1s)
+                        if frame_type == 'A' and '.' not in time_str_local:
+                            if (not running and not finished) or (finished and val is not None and val <= 1.0):
+                                start_time_local = time.time() - val
+                                running = True
+                                finished = False
                                 display_time = val
-                                finish_time_shown_until = time.time() + 5
+                                finish_time_shown_until = 0.0
                                 blink_state = True
                                 blink_last_toggle = time.time()
-                            else:
+                                print(f"[START] val={val}")
+
+                            elif running:
                                 # zwykła ramka sekundowa → korekta dryfu
                                 measured_now = time.time() - start_time_local
                                 drift = val - measured_now
@@ -158,16 +153,21 @@ def comm_func():
                                     start_time_local += drift
                                 display_time = measured_now
 
-                        elif finished:
-                            # po mecie ignorujemy WSZYSTKO (także 0.00!)
-                            pass
+                        # --- META: wynik z ms (z kropką) zatrzymuje bieg i włącza mruganie
+                        if running and '.' in time_str_local:
+                            running = False
+                            finished = True
+                            display_time = val
+                            finish_time_shown_until = time.time() + 5.0
+                            blink_state = True
+                            blink_last_toggle = time.time()
+                            print(f"[META] time={val}")
 
                 # debug print
                 print(f"[{frame_type}] czas: {time_str_local}")
 
     ser.close()
     print("Port zamknięty, wątek kończy działanie")
-
 
 # ---------------- DISPLAY THREAD ----------------
 def display_func():
@@ -176,14 +176,16 @@ def display_func():
 
     while not stop_event.is_set():
         with data_lock:
-            if running and start_time_local is not None:
-                t_val = time.time() - start_time_local
+            now = time.time()
 
-            elif finished and time.time() < finish_time_shown_until:
-                # obsługa mrugania
-                if time.time() - blink_last_toggle >= 1.0:  # co 1s zmiana
+            if running and start_time_local is not None:
+                t_val = now - start_time_local
+
+            elif finished and now < finish_time_shown_until:
+                # mruganie 1 Hz
+                if now - blink_last_toggle >= 1.0:
                     blink_state = not blink_state
-                    blink_last_toggle = time.time()
+                    blink_last_toggle = now
 
                 if blink_state:
                     t_val = display_time
@@ -192,7 +194,6 @@ def display_func():
                     clear_strip(strip2)
                     time.sleep(0.01)
                     continue
-
             else:
                 # brak aktywnego czasu → wygaszenie
                 clear_strip(strip1)
@@ -200,25 +201,29 @@ def display_func():
                 time.sleep(0.01)
                 continue
 
+        # --- Formatowanie czasu
         minutes = int(t_val // 60)
         seconds = int(t_val % 60)
         hundredths = int((t_val * 100) % 100)
 
         digits = [
-            ' ', ' ',
-            f"{minutes:02d}"[0], f"{minutes:02d}"[1],
-            f"{seconds:02d}"[0], f"{seconds:02d}"[1],
-            f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]
+            ' ', ' ',                                 # 2 lewe puste
+            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # min
+            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sek
+            f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]  # setne
         ]
 
-        if digits[2] == '0':
+        # Ukrywanie zer wiodących:
+        # - minuty dziesiątki: ukryj, gdy minutes < 10
+        if minutes < 10:
             digits[2] = ' '
-        if digits[4] == '0' and digits[2] == ' ':
+        # - sekundy dziesiątki: ukryj tylko gdy minutes == 0 i seconds < 10
+        if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print)
-        time.sleep(0.01)
+        time.sleep(0.01)  # 10 ms odświeżanie
 
 # ---------------- SIGNAL HANDLER ----------------
 def signal_handler(sig, frame):
@@ -228,20 +233,23 @@ def signal_handler(sig, frame):
     stop_event.set()
     thread_comm.join()
     thread_disp.join()
-    GPIO.cleanup()  # wyłączenie kropek
+    GPIO.cleanup()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 
 # ---------------- RUN THREADS ----------------
-thread_comm = threading.Thread(target=comm_func)
-thread_disp = threading.Thread(target=display_func)
+thread_comm = threading.Thread(target=comm_func, daemon=True)
+thread_disp = threading.Thread(target=display_func, daemon=True)
 
 dots_on()
 
 thread_comm.start()
 thread_disp.start()
 
-thread_comm.join()
-thread_disp.join()
-
+# Główna pętla (żyje do CTRL+C)
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    signal_handler(None, None)
