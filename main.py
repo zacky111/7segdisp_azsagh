@@ -132,12 +132,15 @@ def comm_func():
                     val, secs, ms = parse_time_str(time_str_local)
 
                     with data_lock:
-                        if frame_type == 'A' and not running and not finished:
-                            # START
+                        if frame_type == 'A':
+                            # START nowego biegu
                             start_time_local = time.time() - val
                             running = True
                             finished = False
                             display_time = val
+                            finish_time_shown_until = 0
+                            blink_state = True
+                            blink_last_toggle = time.time()
 
                         elif running:
                             if '.' in time_str_local:  # META – wynik z ms
@@ -199,7 +202,7 @@ def display_func():
 
         minutes = int(t_val // 60)
         seconds = int(t_val % 60)
-        hundredths = int((t_val - int(t_val)) * 100)
+        hundredths = int((t_val * 100) % 100)
 
         digits = [
             ' ', ' ',
