@@ -73,6 +73,12 @@ display_time = 0.0
 running = False
 finished = False   # <- NOWA flaga
 
+running = False
+finished = False
+finish_time_shown_until = 0
+blink_state = True
+blink_last_toggle = 0
+
 def parse_time_str(tstr):
     try:
         val = float(tstr)
@@ -138,7 +144,9 @@ def comm_func():
                                 running = False
                                 finished = True
                                 display_time = val
-                                # zatrzymujemy czas tutaj, nie zmieniamy już dalej
+                                finish_time_shown_until = time.time() + 5
+                                blink_state = True
+                                blink_last_toggle = time.time()
                             else:
                                 # zwykła ramka sekundowa → korekta dryfu
                                 measured_now = time.time() - start_time_local
@@ -160,26 +168,46 @@ def comm_func():
 
 # ---------------- DISPLAY THREAD ----------------
 def display_func():
-    global start_time_local, display_time, running
+    global start_time_local, display_time, running, finished
+    global finish_time_shown_until, blink_state, blink_last_toggle
+
     while not stop_event.is_set():
         with data_lock:
             if running and start_time_local is not None:
                 t_val = time.time() - start_time_local
+
+            elif finished and time.time() < finish_time_shown_until:
+                # obsługa mrugania
+                if time.time() - blink_last_toggle >= 1.0:  # co 1s zmiana
+                    blink_state = not blink_state
+                    blink_last_toggle = time.time()
+
+                if blink_state:
+                    t_val = display_time
+                else:
+                    clear_strip(strip1)
+                    clear_strip(strip2)
+                    time.sleep(0.01)
+                    continue
+
             else:
-                t_val = display_time
+                # brak aktywnego czasu → wygaszenie
+                clear_strip(strip1)
+                clear_strip(strip2)
+                time.sleep(0.01)
+                continue
 
         minutes = int(t_val // 60)
         seconds = int(t_val % 60)
         hundredths = int((t_val - int(t_val)) * 100)
 
         digits = [
-            ' ', ' ',                                 # 2 lewe puste
+            ' ', ' ',
             f"{minutes:02d}"[0], f"{minutes:02d}"[1],
             f"{seconds:02d}"[0], f"{seconds:02d}"[1],
             f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]
         ]
 
-        # Zera wiodące → spacje
         if digits[2] == '0':
             digits[2] = ' '
         if digits[4] == '0' and digits[2] == ' ':
@@ -187,7 +215,7 @@ def display_func():
 
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print)
-        time.sleep(0.01)  # 10 ms
+        time.sleep(0.01)
 
 # ---------------- SIGNAL HANDLER ----------------
 def signal_handler(sig, frame):
