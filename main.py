@@ -133,8 +133,8 @@ def comm_func():
                     with data_lock:
                         # --- blokada po mecie ---
                         if finished:
-                            if frame_type == 'A':
-                                # START resetuje wszystko
+                            if frame_type == 'A' and '.' not in time_str_local:
+                                # tylko czysty START resetuje
                                 start_time_local = time.time() - val
                                 running = True
                                 finished = False
@@ -143,20 +143,12 @@ def comm_func():
                                 blink_state = True
                                 blink_last_toggle = time.time()
                             else:
-                                continue  # ignorujemy całą resztę ramek
+                                continue  # ignorujemy resztę ramek
 
+                        # --- rozróżnienie START/META ---
                         elif frame_type == 'A':
-                            # START nowego biegu
-                            start_time_local = time.time() - val
-                            running = True
-                            finished = False
-                            display_time = val
-                            finish_time_shown_until = 0
-                            blink_state = True
-                            blink_last_toggle = time.time()
-
-                        elif running:
-                            if '.' in time_str_local:  # META – wynik z ms
+                            if '.' in time_str_local:
+                                # to jest META, nie start!
                                 running = False
                                 finished = True
                                 display_time = val
@@ -164,18 +156,28 @@ def comm_func():
                                 blink_state = True
                                 blink_last_toggle = time.time()
                             else:
-                                # ramka sekundowa → korekta dryfu
-                                measured_now = time.time() - start_time_local
-                                drift = val - measured_now
-                                if abs(drift) > 0.05:
-                                    start_time_local += drift
-                                display_time = measured_now
+                                # faktyczny START
+                                start_time_local = time.time() - val
+                                running = True
+                                finished = False
+                                display_time = val
+                                finish_time_shown_until = 0
+                                blink_state = True
+                                blink_last_toggle = time.time()
 
-                # debug print
+                        elif running:
+                            # ramki sekundowe → korekta dryfu
+                            measured_now = time.time() - start_time_local
+                            drift = val - measured_now
+                            if abs(drift) > 0.05:
+                                start_time_local += drift
+                            display_time = measured_now
+
                 print(f"[{frame_type}] czas: {time_str_local}")
 
     ser.close()
     print("Port zamknięty, wątek kończy działanie")
+
 
 # ---------------- DISPLAY THREAD ----------------
 def display_func():
