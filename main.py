@@ -87,7 +87,8 @@ def parse_time_str(tstr):
 
 def comm_func():
     global start_time_local, display_time, running, finished
-    global finish_time_shown_until, blink_state, blink_last_toggle  # <- WAŻNE!
+    global finish_time_shown_until, blink_state, blink_last_toggle
+
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
     ser = serial.Serial(PORT, BAUD, parity=serial.PARITY_NONE,
@@ -118,50 +119,57 @@ def comm_func():
                 cleaned = re.sub(r'[^0-9A-Za-z\s\.\-]', '', raw_frame)
                 frame_type = cleaned[0].upper() if cleaned else '?'
 
-                # RaceTime2: czas zwykle w ramkach A; przy "Sxxxx" najpierw id zawodnika itd.
                 m = re.search(r'[Ss](\d{1,6})', cleaned)
                 if m:
                     rest = cleaned[m.end():]
                     tmatch = re.search(r'(\d+\.\d+|\d+)', rest)
                 else:
-                    tmatch = re.search(r'(\d+\.\d+|\d+)', cleaned)
+                    tmatch = re.search(r'(\d+\.\d+)', cleaned)
 
                 time_str_local = tmatch.group(1) if tmatch else None
+                if time_str_local:
+                    val, secs, ms = parse_time_str(time_str_local)
 
-                with data_lock:
-                    if time_str_local:
-                        val, secs, ms = parse_time_str(time_str_local)
-
-                        # --- START: tylko gdy nie biegniemy; jeśli mrugamy po mecie,
-                        # pozwól "przebić" się nowemu startowi tylko dla małych wartości (<=1s)
-                        if frame_type == 'A' and '.' not in time_str_local:
-                            if (not running and not finished) or (finished and val is not None and val <= 1.0):
+                    with data_lock:
+                        # --- blokada po mecie ---
+                        if finished:
+                            if frame_type == 'A':
+                                # START resetuje wszystko
                                 start_time_local = time.time() - val
                                 running = True
                                 finished = False
                                 display_time = val
-                                finish_time_shown_until = 0.0
+                                finish_time_shown_until = 0
                                 blink_state = True
                                 blink_last_toggle = time.time()
-                                print(f"[START] val={val}")
+                            else:
+                                continue  # ignorujemy całą resztę ramek
 
-                            elif running:
-                                # zwykła ramka sekundowa → korekta dryfu
+                        elif frame_type == 'A':
+                            # START nowego biegu
+                            start_time_local = time.time() - val
+                            running = True
+                            finished = False
+                            display_time = val
+                            finish_time_shown_until = 0
+                            blink_state = True
+                            blink_last_toggle = time.time()
+
+                        elif running:
+                            if '.' in time_str_local:  # META – wynik z ms
+                                running = False
+                                finished = True
+                                display_time = val
+                                finish_time_shown_until = time.time() + 5
+                                blink_state = True
+                                blink_last_toggle = time.time()
+                            else:
+                                # ramka sekundowa → korekta dryfu
                                 measured_now = time.time() - start_time_local
                                 drift = val - measured_now
                                 if abs(drift) > 0.05:
                                     start_time_local += drift
                                 display_time = measured_now
-
-                        # --- META: wynik z ms (z kropką) zatrzymuje bieg i włącza mruganie
-                        if running and '.' in time_str_local:
-                            running = False
-                            finished = True
-                            display_time = val
-                            finish_time_shown_until = time.time() + 5.0
-                            blink_state = True
-                            blink_last_toggle = time.time()
-                            print(f"[META] time={val}")
 
                 # debug print
                 print(f"[{frame_type}] czas: {time_str_local}")
