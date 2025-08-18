@@ -11,7 +11,6 @@ import src.stripe_config as sc
 import src.dot_config as dc
 from src.stripe_util import liczbyWysw
 
-
 # ---------------- LED SETUP ----------------
 strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
                     sc.LED_INVERT, sc.LED_BRIGHTNESS, sc.LED_CHANNEL_0)
