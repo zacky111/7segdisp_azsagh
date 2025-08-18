@@ -194,7 +194,7 @@ def display_func():
 
             elif finished and now < finish_time_shown_until:
                 # mruganie 1 Hz
-                if now - blink_last_toggle >= 1.0:
+                if now - blink_last_toggle >= 0.5:
                     blink_state = not blink_state
                     blink_last_toggle = now
 
