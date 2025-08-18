@@ -153,7 +153,7 @@ def comm_func():
                                 running = False
                                 finished = True
                                 display_time = val
-                                finish_time_shown_until = time.time() + 5
+                                finish_time_shown_until = time.time() + 7
                                 blink_state = True
                                 blink_last_toggle = time.time()
                             else:
@@ -194,7 +194,7 @@ def display_func():
 
             elif finished and now < finish_time_shown_until:
                 # mruganie 1 Hz
-                if now - blink_last_toggle >= 0.5:
+                if now - blink_last_toggle >= 0.7:
                     blink_state = not blink_state
                     blink_last_toggle = now
 
