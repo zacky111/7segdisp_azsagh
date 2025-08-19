@@ -9,7 +9,7 @@ from rpi_ws281x import PixelStrip, Color
 
 import src.stripe.config as sc
 import src.dot.config as dc
-from stripe.util import liczbyWysw
+from src.stripe.util import liczbyWysw
 
 # ---------------- LED SETUP ----------------
 strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
