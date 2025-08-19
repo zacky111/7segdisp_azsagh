@@ -5,29 +5,13 @@ import re
 import threading
 import serial
 import RPi.GPIO as GPIO
-from rpi_ws281x import PixelStrip, Color
-
-#import src.stripe.config as sc
-from src.stripe.util import liczbyWysw
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
+from src.comm.util import ser_init
 
 # ---------------- LED SETUP ----------------
-"""strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
-                    sc.LED_INVERT, sc.LED_BRIGHTNESS, sc.LED_CHANNEL_0)
-strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA,
-                    sc.LED_INVERT, sc.LED_BRIGHTNESS, sc.LED_CHANNEL_1)
-strip1.begin()
-strip2.begin()"""
-
 strip1, strip2 = strip_init()
-
-
-
-
-
-
 
 # ---------------- DOTS -------------------------
 dot_init()
@@ -58,13 +42,8 @@ def comm_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
 
-    PORT = '/dev/ttyUSB0'
-    BAUD = 1200
-    ser = serial.Serial(PORT, BAUD, parity=serial.PARITY_NONE,
-                        stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS,
-                        timeout=1)
-    print(f"Otwarty port: {ser.portstr}")
+    ser = ser_init()
+    
     buffer = ""
 
     while not stop_event.is_set():
@@ -226,7 +205,7 @@ dots_on()
 thread_comm.start()
 thread_disp.start()
 
-# Główna pętla (żyje do CTRL+C)
+# Main loop - to close remotly - Ctrl+C
 try:
     while True:
         time.sleep(1)
