@@ -1,6 +1,6 @@
 import serial
 
-from config import PORT, BAUD, parity, stopbits, bytesize, timeout
+from src.comm.config import PORT, BAUD, parity, stopbits, bytesize, timeout
 
 def ser_init():
     ser = serial.Serial(PORT, BAUD, parity=parity,
