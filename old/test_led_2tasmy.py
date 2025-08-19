@@ -3,10 +3,10 @@ import signal
 import sys
 from rpi_ws281x import PixelStrip, Color
 
-import src.stripe_config as sc
-import src.dot_config as dc
+import stripe.config as sc
+import dot.config as dc
 
-from src.stripe_util import liczbyWysw
+from stripe.util import liczbyWysw
 
 import serial
 import re
