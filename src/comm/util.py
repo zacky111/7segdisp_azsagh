@@ -9,3 +9,12 @@ def ser_init():
                     timeout=timeout)
     print(f"Otwarty port: {ser.portstr}")
     return ser
+
+def parse_time_str(tstr):
+    try:
+        val = float(tstr)
+        secs = int(val)
+        ms = int(round((val - secs) * 1000))
+        return val, secs, ms
+    except Exception:
+        return None, None, None

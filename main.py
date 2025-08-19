@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
-from src.comm.util import ser_init
+from src.comm.util import ser_init, parse_time_str
 
 # ---------------- LED SETUP ----------------
 strip1, strip2 = strip_init()
@@ -29,14 +29,6 @@ finish_time_shown_until = 0.0
 blink_state = True
 blink_last_toggle = 0.0
 
-def parse_time_str(tstr):
-    try:
-        val = float(tstr)
-        secs = int(val)
-        ms = int(round((val - secs) * 1000))
-        return val, secs, ms
-    except Exception:
-        return None, None, None
 
 def comm_func():
     global start_time_local, display_time, running, finished
