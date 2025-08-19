@@ -12,6 +12,7 @@ StandardOutput=inherit
 StandardError=inherit
 Restart=always
 User=azsagh
+Group=gpio
 
 [Install]
 WantedBy=multi-user.target
