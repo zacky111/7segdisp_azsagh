@@ -11,7 +11,7 @@ WorkingDirectory=/home/pi/7segdisp_azsagh
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=pi
+User=azsagh
 
 [Install]
 WantedBy=multi-user.target
