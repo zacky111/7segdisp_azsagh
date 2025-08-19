@@ -28,14 +28,17 @@ finished = False
 finish_time_shown_until = 0.0
 blink_state = True
 blink_last_toggle = 0.0
+last_frame_time = time.time()
+no_data_mode = False
+no_data_until = 0.0
 
 
 def comm_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
+    global last_frame_time
 
     ser = ser_init()
-    
     buffer = ""
 
     while not stop_event.is_set():
@@ -71,9 +74,11 @@ def comm_func():
                     val, secs, ms = parse_time_str(time_str_local)
 
                     with data_lock:
+                        last_frame_time = time.time()  # aktualizacja watchdog
+
                         if finished:
                             if frame_type == 'A' and '.' not in time_str_local:
-                                # Clear start - without '.'
+                                # Clear start
                                 start_time_local = time.time() - val
                                 running = True
                                 finished = False
@@ -82,9 +87,8 @@ def comm_func():
                                 blink_state = True
                                 blink_last_toggle = time.time()
                             else:
-                                continue  # ignorujemy resztę ramek
+                                continue
 
-                        # --- rozróżnienie START/META ---
                         elif frame_type == 'A':
                             if '.' in time_str_local:
                                 # META
@@ -122,11 +126,36 @@ def comm_func():
 def display_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
+    global last_frame_time, no_data_mode, no_data_until
 
     while not stop_event.is_set():
-        with data_lock:
-            now = time.time()
+        now = time.time()
 
+        # --- tryb "brak ramek" ---
+        if now - last_frame_time > 10:
+            if not no_data_mode:
+                no_data_mode = True
+                no_data_until = now + 6  # 1s świecenia + 5s wygaszenia
+
+            if now < no_data_until - 5:
+                # świeć 1s prawą cyfrą
+                digits = [' ', ' ', ' ', ' ', ' ', ' ', ' ', '8']
+                segm_to_print = segm_from_frame(digits)
+                print_strip(segm_to_print, strip1, strip2)
+                time.sleep(0.05)
+                continue
+            elif now < no_data_until:
+                # wygaszenie 5s
+                clear_strip(strip1)
+                clear_strip(strip2)
+                time.sleep(0.05)
+                continue
+            else:
+                no_data_mode = False
+                last_frame_time = now  # żeby nie wpadł natychmiast znowu
+                continue
+
+        with data_lock:
             if running and start_time_local is not None:
                 t_val = now - start_time_local
 
@@ -144,7 +173,6 @@ def display_func():
                     time.sleep(0.01)
                     continue
             else:
-                # brak aktywnego czasu → wygaszenie
                 clear_strip(strip1)
                 clear_strip(strip2)
                 time.sleep(0.01)
@@ -156,24 +184,23 @@ def display_func():
         hundredths = int((t_val * 100) % 100)
 
         digits = [
-            ' ', ' ',  # 2 lewe puste
+            ' ', ' ',
             ' ', ' ',  # domyślnie minuty wygaszone
             f"{seconds:02d}"[0], f"{seconds:02d}"[1],
             f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]
         ]
 
-        # Jeśli czas >= 1 min, to pokaż minuty normalnie
         if minutes > 0:
             digits[2] = f"{minutes:02d}"[0]
             digits[3] = f"{minutes:02d}"[1]
 
-        # Ukrywanie zer wiodących dla sekund < 10
         if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
         segm_to_print = segm_from_frame(digits)
-        print_strip(segm_to_print,strip1, strip2)
-        time.sleep(0.01)  # 10 ms odświeżanie
+        print_strip(segm_to_print, strip1, strip2)
+        time.sleep(0.01)
+
 
 # ---------------- SIGNAL HANDLER ----------------
 def signal_handler(sig, frame):
@@ -197,7 +224,6 @@ dots_on()
 thread_comm.start()
 thread_disp.start()
 
-# Main loop - to close remotly - Ctrl+C
 try:
     while True:
         time.sleep(1)
