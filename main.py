@@ -7,8 +7,8 @@ import serial
 import RPi.GPIO as GPIO
 from rpi_ws281x import PixelStrip, Color
 
-import stripe.config as sc
-import dot.config as dc
+import src.stripe.config as sc
+import src.dot.config as dc
 from stripe.util import liczbyWysw
 
 # ---------------- LED SETUP ----------------
