@@ -6,12 +6,12 @@ Description=7seg Display Service
 After=network.target
 
 [Service]
-ExecStart=/home/pi/7segdisp_azsagh/venv/bin/python /home/pi/7segdisp_azsagh/main.py
-WorkingDirectory=/home/pi/7segdisp_azsagh
+ExecStart=/home/azsagh/7segdisp_azsagh/venv/bin/python /home/azsagh/7segdisp_azsagh/main.py
+WorkingDirectory=/home/azsagh/7segdisp_azsagh
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=pi
+User=azsagh
 
 [Install]
 WantedBy=multi-user.target
