@@ -7,9 +7,9 @@ import serial
 import RPi.GPIO as GPIO
 from rpi_ws281x import PixelStrip, Color
 
-import src.stripe_config as sc
-import src.dot_config as dc
-from src.stripe_util import liczbyWysw
+import stripe.config as sc
+import dot.config as dc
+from stripe.util import liczbyWysw
 
 # ---------------- LED SETUP ----------------
 strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
@@ -131,10 +131,9 @@ def comm_func():
                     val, secs, ms = parse_time_str(time_str_local)
 
                     with data_lock:
-                        # --- blokada po mecie ---
                         if finished:
                             if frame_type == 'A' and '.' not in time_str_local:
-                                # tylko czysty START resetuje
+                                # Clear start - without '.'
                                 start_time_local = time.time() - val
                                 running = True
                                 finished = False
@@ -148,7 +147,7 @@ def comm_func():
                         # --- rozróżnienie START/META ---
                         elif frame_type == 'A':
                             if '.' in time_str_local:
-                                # to jest META, nie start!
+                                # META
                                 running = False
                                 finished = True
                                 display_time = val
@@ -156,7 +155,7 @@ def comm_func():
                                 blink_state = True
                                 blink_last_toggle = time.time()
                             else:
-                                # faktyczny START
+                                # START
                                 start_time_local = time.time() - val
                                 running = True
                                 finished = False

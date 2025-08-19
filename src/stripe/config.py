@@ -1,4 +1,4 @@
-## konfiguracja tasm led
+#=========== STRIPES CONFIG ================================
 
 LED_COUNT = 28
 LED_FREQ_HZ = 800000
