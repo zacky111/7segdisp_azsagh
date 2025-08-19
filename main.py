@@ -217,17 +217,18 @@ def display_func():
         hundredths = int((t_val * 100) % 100)
 
         digits = [
-            ' ', ' ',                                 # 2 lewe puste
-            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # min
-            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sek
-            f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]  # setne
+            ' ', ' ',  # 2 lewe puste
+            ' ', ' ',  # domyślnie minuty wygaszone
+            f"{seconds:02d}"[0], f"{seconds:02d}"[1],
+            f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]
         ]
 
-        # Ukrywanie zer wiodących:
-        # - minuty dziesiątki: ukryj, gdy minutes < 10
-        if minutes < 10:
-            digits[2] = ' '
-        # - sekundy dziesiątki: ukryj tylko gdy minutes == 0 i seconds < 10
+        # Jeśli czas >= 1 min, to pokaż minuty normalnie
+        if minutes > 0:
+            digits[2] = f"{minutes:02d}"[0]
+            digits[3] = f"{minutes:02d}"[1]
+
+        # Ukrywanie zer wiodących dla sekund < 10
         if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
