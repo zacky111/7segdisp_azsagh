@@ -1,20 +1,17 @@
-#plik do autouruchamiania main.py po uruchomieniu systemu
-#nalezy umiescić go w lokalizacji: "/etc/systemd/system"
-
+# /etc/systemd/system/7seg.service
 [Unit]
 Description=7seg Display Service
 After=network.target
 
 [Service]
-ExecStart=/home/azsagh/7segdisp_azsagh/venv/bin/python /home/azsagh/7segdisp_azsagh/main.py
-WorkingDirectory=/home/azsagh/7segdisp_azsagh
-StandardOutput=inherit
-StandardError=inherit
-Restart=always
+Type=simple
 User=azsagh
-Group=gpio
+WorkingDirectory=/home/azsagh/7segdisp_azsagh
+ExecStart=/home/azsagh/7segdisp_azsagh/venv/bin/python /home/azsagh/7segdisp_azsagh/main.py
+StandardOutput=append:/home/azsagh/7segdisp_azsagh/7seg.log
+StandardError=append:/home/azsagh/7segdisp_azsagh/7seg.log
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-
-
