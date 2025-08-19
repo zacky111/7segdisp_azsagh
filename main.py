@@ -8,8 +8,10 @@ import RPi.GPIO as GPIO
 from rpi_ws281x import PixelStrip, Color
 
 import src.stripe.config as sc
-import src.dot.config as dc
+#import src.dot.config as dc
 from src.stripe.util import liczbyWysw
+
+from src.dot.util import dot_init, dots_on, dots_off
 
 # ---------------- LED SETUP ----------------
 strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
@@ -48,20 +50,23 @@ def print_strip(segm_to_print):
     strip2.show()
 
 # ---------------- DOTS -------------------------
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(dc.LED_PIN, GPIO.OUT)
+"""GPIO.setmode(GPIO.BCM)
+GPIO.setup(dc.LED_PIN1, GPIO.OUT)
 GPIO.setup(dc.LED_PIN2, GPIO.OUT)
 GPIO.setup(dc.LED_PIN3, GPIO.OUT)
 
-def dots_on(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
-    GPIO.output(LED_PIN, GPIO.HIGH)
+def dots_on(LED_PIN1=dc.LED_PIN1, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
+    GPIO.output(LED_PIN1, GPIO.HIGH)
     GPIO.output(LED_PIN2, GPIO.HIGH)
     GPIO.output(LED_PIN3, GPIO.HIGH)
 
-def dots_off(LED_PIN=dc.LED_PIN, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
-    GPIO.output(LED_PIN, GPIO.LOW)
+def dots_off(LED_PIN1=dc.LED_PIN1, LED_PIN2=dc.LED_PIN2, LED_PIN3=dc.LED_PIN3):
+    GPIO.output(LED_PIN1, GPIO.LOW)
     GPIO.output(LED_PIN2, GPIO.LOW)
     GPIO.output(LED_PIN3, GPIO.LOW)
+"""
+
+dot_init()
 
 # ---------------- COMMUNICATION ----------------
 stop_event = threading.Event()
