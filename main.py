@@ -89,11 +89,6 @@ def comm_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
 
-    # Tuning
-    DRIFT_CORR_THRESHOLD = 0.05      # powyżej tego korygujemy start_time_local
-    SECONDS_ACCEPT_WINDOW = 1.0      # sekundy akceptujemy tylko, gdy są blisko naszego t
-    META_ACCEPT_WINDOW = 0.7         # meta akceptujemy, gdy |val - t| <= 0.7 s
-
     PORT = '/dev/ttyUSB0'
     BAUD = 1200
     ser = serial.Serial(PORT, BAUD, parity=serial.PARITY_NONE,
@@ -118,96 +113,71 @@ def comm_func():
                 end = buffer.find('\x03', start)
                 if end == -1:
                     break
-
                 raw_frame = buffer[start+1:end]
                 buffer = buffer[end+1:]
 
                 cleaned = re.sub(r'[^0-9A-Za-z\s\.\-]', '', raw_frame)
                 frame_type = cleaned[0].upper() if cleaned else '?'
 
-                # Obsługa ramek typu "Sxxxx..." też z czasem po ID
                 m = re.search(r'[Ss](\d{1,6})', cleaned)
                 if m:
                     rest = cleaned[m.end():]
                     tmatch = re.search(r'(\d+\.\d+|\d+)', rest)
                 else:
-                    tmatch = re.search(r'(\d+\.\d+|\d+)', cleaned)
+                    tmatch = re.search(r'(\d+\.\d+)', cleaned)
 
                 time_str_local = tmatch.group(1) if tmatch else None
-
-                action = "IGN"  # do debugów
                 if time_str_local:
                     val, secs, ms = parse_time_str(time_str_local)
-                    now = time.time()
 
                     with data_lock:
-                        if running:
-                            measured_now = now - start_time_local
+                        # --- blokada po mecie ---
+                        if finished:
+                            if frame_type == 'A' and '.' not in time_str_local:
+                                # tylko czysty START resetuje
+                                start_time_local = time.time() - val
+                                running = True
+                                finished = False
+                                display_time = val
+                                finish_time_shown_until = 0
+                                blink_state = True
+                                blink_last_toggle = time.time()
+                            else:
+                                continue  # ignorujemy resztę ramek
 
+                        # --- rozróżnienie START/META ---
+                        elif frame_type == 'A':
                             if '.' in time_str_local:
-                                # META: akceptuj tylko jeśli pasuje do aktualnego biegu
-                                if abs(val - measured_now) <= META_ACCEPT_WINDOW:
-                                    running = False
-                                    finished = True
-                                    display_time = val
-                                    finish_time_shown_until = now + 7   # Twój czas migania
-                                    blink_state = True
-                                    blink_last_toggle = now
-                                    action = "META_OK"
-                                else:
-                                    # spóźniona meta z poprzedniego zawodnika → ignoruj
-                                    action = "META_IGN"
+                                # to jest META, nie start!
+                                running = False
+                                finished = True
+                                display_time = val
+                                finish_time_shown_until = time.time() + 7
+                                blink_state = True
+                                blink_last_toggle = time.time()
                             else:
-                                # Ramka sekundowa → koryguj tylko jeśli blisko naszego czasu
-                                drift = val - measured_now
-                                if abs(drift) <= SECONDS_ACCEPT_WINDOW:
-                                    if abs(drift) > DRIFT_CORR_THRESHOLD:
-                                        start_time_local += drift
-                                    display_time = measured_now
-                                    action = "SEC_OK"
-                                else:
-                                    action = "SEC_IGN"
+                                # faktyczny START
+                                start_time_local = time.time() - val
+                                running = True
+                                finished = False
+                                display_time = val
+                                finish_time_shown_until = 0
+                                blink_state = True
+                                blink_last_toggle = time.time()
 
-                        else:
-                            if finished:
-                                # W trakcie migania – dowolna ramka z CZASEM BEZ KROPKI
-                                # oznacza, że kolejny zawodnik już jedzie → przełącz na running
-                                if '.' not in time_str_local:
-                                    start_time_local = now - val
-                                    running = True
-                                    finished = False
-                                    display_time = val
-                                    finish_time_shown_until = 0.0
-                                    blink_state = True
-                                    blink_last_toggle = now
-                                    action = "START_FROM_FINISHED"
-                                else:
-                                    action = "FIN_BLINK_IGN"
-                            else:
-                                # IDLE: jeśli przyjdzie liczba całkowita → start
-                                if '.' not in time_str_local:
-                                    start_time_local = now - val
-                                    running = True
-                                    finished = False
-                                    display_time = val
-                                    finish_time_shown_until = 0.0
-                                    blink_state = True
-                                    blink_last_toggle = now
-                                    action = "START_IDLE"
-                                else:
-                                    # przyszła meta bez biegu (np. retransmisja) → opcjonalnie migaj
-                                    running = False
-                                    finished = True
-                                    display_time = val
-                                    finish_time_shown_until = now + 7
-                                    blink_state = True
-                                    blink_last_toggle = now
-                                    action = "META_WHILE_IDLE"
+                        elif running:
+                            # ramki sekundowe → korekta dryfu
+                            measured_now = time.time() - start_time_local
+                            drift = val - measured_now
+                            if abs(drift) > 0.05:
+                                start_time_local += drift
+                            display_time = measured_now
 
-                print(f"[{frame_type}] czas: {time_str_local} -> {action}")
+                print(f"[{frame_type}] czas: {time_str_local}")
 
     ser.close()
     print("Port zamknięty, wątek kończy działanie")
+
 
 # ---------------- DISPLAY THREAD ----------------
 def display_func():
@@ -219,11 +189,10 @@ def display_func():
             now = time.time()
 
             if running and start_time_local is not None:
-                # --- Priorytet dla aktywnego przejazdu ---
                 t_val = now - start_time_local
 
-            elif finished and now < finish_time_shown_until and not running:
-                # --- Miganie tylko, gdy NIE ma nowego biegu ---
+            elif finished and now < finish_time_shown_until:
+                # mruganie 1 Hz
                 if now - blink_last_toggle >= 0.7:
                     blink_state = not blink_state
                     blink_last_toggle = now
@@ -235,29 +204,30 @@ def display_func():
                     clear_strip(strip2)
                     time.sleep(0.01)
                     continue
-
             else:
-                # --- Brak aktywnego czasu i brak migania ---
+                # brak aktywnego czasu → wygaszenie
                 clear_strip(strip1)
                 clear_strip(strip2)
                 time.sleep(0.01)
                 continue
 
-        # --- Formatowanie czasu do wyświetlenia ---
+        # --- Formatowanie czasu
         minutes = int(t_val // 60)
         seconds = int(t_val % 60)
         hundredths = int((t_val * 100) % 100)
 
         digits = [
             ' ', ' ',                                 # 2 lewe puste
-            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # minuty
-            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sekundy
+            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # min
+            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sek
             f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]  # setne
         ]
 
-        # Ukrywanie zer wiodących
+        # Ukrywanie zer wiodących:
+        # - minuty dziesiątki: ukryj, gdy minutes < 10
         if minutes < 10:
             digits[2] = ' '
+        # - sekundy dziesiątki: ukryj tylko gdy minutes == 0 i seconds < 10
         if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
