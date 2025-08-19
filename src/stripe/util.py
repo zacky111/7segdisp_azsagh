@@ -45,3 +45,26 @@ def clear_strip(strip):
 	for i in range(strip.numPixels()):
 		strip.setPixelColor(i, Color(0, 0, 0))
 	strip.show()
+
+def print_strip(segm_to_print,strip1, strip2):
+    for i in range(sc.LED_COUNT):
+        strip1.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[0] else Color(0, 0, 0))
+        strip2.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0))
+    strip1.show()
+    strip2.show()
+
+def segm_from_frame(data_frame: list):
+    segm_on_strip1 = []
+    segm_on_strip2 = []
+    mapping_strip1 = [2, 3, 0, 1]  # map logic->physical for first 4 digits
+
+    for num, elem in enumerate(data_frame):
+        part_segm = liczbyWysw.get(elem, [])
+        if num < 4:
+            mapped_num = mapping_strip1[num]
+            part_segm = [x + mapped_num * 7 for x in part_segm]
+            segm_on_strip1 += part_segm
+        else:
+            part_segm = [x + (num - 4) * 7 for x in part_segm]
+            segm_on_strip2 += part_segm
+    return [segm_on_strip1, segm_on_strip2]

@@ -11,7 +11,7 @@ from rpi_ws281x import PixelStrip, Color
 from src.stripe.util import liczbyWysw
 
 from src.dot.util import dot_init, dots_on, dots_off
-from src.stripe.util import strip_init, clear_strip
+from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
 
 # ---------------- LED SETUP ----------------
 """strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
@@ -25,28 +25,9 @@ strip1, strip2 = strip_init()
 
 
 
-def segm_from_frame(data_frame: list, strip1=strip1, strip2=strip2):
-    segm_on_strip1 = []
-    segm_on_strip2 = []
-    mapping_strip1 = [2, 3, 0, 1]  # map logic->physical for first 4 digits
 
-    for num, elem in enumerate(data_frame):
-        part_segm = liczbyWysw.get(elem, [])
-        if num < 4:
-            mapped_num = mapping_strip1[num]
-            part_segm = [x + mapped_num * 7 for x in part_segm]
-            segm_on_strip1 += part_segm
-        else:
-            part_segm = [x + (num - 4) * 7 for x in part_segm]
-            segm_on_strip2 += part_segm
-    return [segm_on_strip1, segm_on_strip2]
 
-def print_strip(segm_to_print):
-    for i in range(sc.LED_COUNT):
-        strip1.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[0] else Color(0, 0, 0))
-        strip2.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0))
-    strip1.show()
-    strip2.show()
+
 
 # ---------------- DOTS -------------------------
 dot_init()
@@ -220,7 +201,7 @@ def display_func():
             digits[4] = ' '
 
         segm_to_print = segm_from_frame(digits)
-        print_strip(segm_to_print)
+        print_strip(segm_to_print,strip1, strip2)
         time.sleep(0.01)  # 10 ms odświeżanie
 
 # ---------------- SIGNAL HANDLER ----------------
