@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-
 import src.dot.config as dc
 
 GPIO.setmode(GPIO.BCM)
