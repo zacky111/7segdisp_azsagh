@@ -141,7 +141,7 @@ def display_func():
                 # świeć 1s prawą cyfrą
                 digits = [' ', ' ', ' ', ' ', ' ', ' ', ' ', '8']
                 segm_to_print = segm_from_frame(digits)
-                print_strip(segm_to_print, strip1, strip2)
+                print_strip(segm_to_print, strip1, strip2, color="blue")
                 time.sleep(0.05)
                 continue
             elif now < no_data_until:

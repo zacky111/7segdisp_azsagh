@@ -31,6 +31,11 @@ liczbyWysw = {
     " ": []
 }
 
+colorMapping={
+    "red": Color(255, 0, 0),
+    "blue": Color(0,0, 255),
+}
+
 
 def strip_init():
 	strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
@@ -46,12 +51,15 @@ def clear_strip(strip):
 		strip.setPixelColor(i, Color(0, 0, 0))
 	strip.show()
 
-def print_strip(segm_to_print,strip1, strip2):
+def print_strip(segm_to_print,strip1, strip2, color="red"):
+
     for i in range(sc.LED_COUNT):
-        strip1.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[0] else Color(0, 0, 0))
-        strip2.setPixelColor(i, Color(255, 0, 0) if i in segm_to_print[1] else Color(0, 0, 0))
+        strip1.setPixelColor(i, colorMapping[color] if i in segm_to_print[0] else Color(0, 0, 0))
+        strip2.setPixelColor(i, colorMapping[color] if i in segm_to_print[1] else Color(0, 0, 0))
     strip1.show()
     strip2.show()
+
+        
 
 def segm_from_frame(data_frame: list):
     segm_on_strip1 = []
