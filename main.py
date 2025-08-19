@@ -189,10 +189,11 @@ def display_func():
             now = time.time()
 
             if running and start_time_local is not None:
+                # --- Priorytet dla aktywnego przejazdu ---
                 t_val = now - start_time_local
 
-            elif finished and now < finish_time_shown_until:
-                # mruganie 1 Hz
+            elif finished and now < finish_time_shown_until and not running:
+                # --- Miganie tylko, gdy NIE ma nowego biegu ---
                 if now - blink_last_toggle >= 0.7:
                     blink_state = not blink_state
                     blink_last_toggle = now
@@ -204,37 +205,36 @@ def display_func():
                     clear_strip(strip2)
                     time.sleep(0.01)
                     continue
+
             else:
-                # brak aktywnego czasu → wygaszenie
+                # --- Brak aktywnego czasu i brak migania ---
                 clear_strip(strip1)
                 clear_strip(strip2)
                 time.sleep(0.01)
                 continue
 
-        # --- Formatowanie czasu
+        # --- Formatowanie czasu do wyświetlenia ---
         minutes = int(t_val // 60)
         seconds = int(t_val % 60)
         hundredths = int((t_val * 100) % 100)
 
         digits = [
             ' ', ' ',                                 # 2 lewe puste
-            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # min
-            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sek
+            f"{minutes:02d}"[0], f"{minutes:02d}"[1], # minuty
+            f"{seconds:02d}"[0], f"{seconds:02d}"[1], # sekundy
             f"{hundredths:02d}"[0], f"{hundredths:02d}"[1]  # setne
         ]
 
-        # Ukrywanie zer wiodących:
-        # - minuty dziesiątki: ukryj, gdy minutes < 10
+        # Ukrywanie zer wiodących
         if minutes < 10:
             digits[2] = ' '
-        # - sekundy dziesiątki: ukryj tylko gdy minutes == 0 i seconds < 10
         if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print)
         time.sleep(0.01)  # 10 ms odświeżanie
-
+        
 # ---------------- SIGNAL HANDLER ----------------
 def signal_handler(sig, frame):
     print("\nWyłączam...")
