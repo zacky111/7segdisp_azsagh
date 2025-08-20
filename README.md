@@ -1,5 +1,7 @@
 # 7-Segment RaceTime Display System
 
+![Men slaloming](images/slalom1.jpg)
+
 ## Project Overview
 This project is the practical implementation of my engineering thesis, focused on building a **real-time sports timing and visualization system**.  
 It integrates with the **RaceTime** timing device and uses a **Raspberry Pi** as the central controller to:
@@ -63,6 +65,34 @@ The system is divided into **three cooperating layers**:
    - GPIO pins also control **status LEDs (dots)** for additional feedback.
 
 ---
+
+
+## Project structure
+
+```
+7segdisp_azsagh/
+├── 7seg.log
+├── 7seg.service
+├── main.py
+├── old             #test files, to be removed after finish of implementation ;)
+│   ├── test_komunikacja.py
+│   ├── test_led_2tasmy.py
+│   └── test_led.py
+├── README.md
+├── requirements.txt
+├── src
+│   ├── comm
+│   │   ├── config.py
+│   │   └── util.py
+│   ├── dot
+│   │   ├── config.py
+│   │   └── util.py
+│   └── stripe
+│       ├── config.py
+│       └── util.py
+└── venv
+    └── ...
+```
 
 ## Installation & Usage
 Clone the repository and create a Python virtual environment:
