@@ -88,6 +88,7 @@ The system is divided into **three cooperating layers**:
 ├── old (test files, to be removed after finish of implementation ;))
 │   └── ...
 ├── venv
+├── images
 ├── src
 │   ├── comm
 │   │   ├── config.py
