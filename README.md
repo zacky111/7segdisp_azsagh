@@ -1,7 +1,5 @@
 # 7-Segment RaceTime Display System
 
-![Men slaloming](images/slalom1.jpg)
-
 ## Project Overview
 This project is the practical implementation of my engineering thesis, focused on building a **real-time sports timing and visualization system**.  
 It integrates with the **RaceTime** timing device and uses a **Raspberry Pi** as the central controller to:
@@ -13,6 +11,10 @@ It integrates with the **RaceTime** timing device and uses a **Raspberry Pi** as
 
 The system was designed for **sports competitions**, ensuring clear, reliable, and immediate feedback for athletes and organizers.  
 It is optimized to run in a **standalone mode**, starting automatically on boot and tolerant to sudden power-offs.
+
+![Men slaloming](images/slalom1.jpg)
+
+As a starting point, implementation is considered to be used with Time Control for **Snowboarding Slalom**, mostly as a device cooperating with Microgate appliances for measuring times.
 
 ---
 
@@ -28,6 +30,19 @@ It is optimized to run in a **standalone mode**, starting automatically on boot 
 
 ---
 
+## Hardware implementation
+Device's architecture is devided into smaller parts by functionalities:
+- **Power unit** - whole system is being powered by battery used in Makita electrical appliances. The choice was made by simple idea - such battery is being used in field, while putting slalom pole's on the racing place. It was considered convinient to share power supply in order to reduce the ammount of appliances needed to be loaded up. Such battery delivers 18V DC - to achieve requested voltage levels, the combination of two step-down converters *XL4015* are used:
+    -  **5V** - powering RPi, level converter (to convert level of signals controlling led stripes) and dots, that are marking the meaning of digits,
+    -  **12V** - powering led stripes,
+
+- **Control unit** - whole control of system's behavior is conducted by it's heart - *RaspberryPi 3B+* microcomputer. It's GPIO ports are being used to control the data that is printed on LED Stripes and Dots. As an input, system recieves data frames from Time Control System - *RaceTime2* - a chronometr, that communicates with starting and ending gate, which sends the signals of start and finish of users ride on the track.
+
+- **Execution unit** - main part, which perform devices functionalities. Consists of:
+  - LED Stripes - programmable led stripes *WS2811*, put in 3D printed slots - each having 7 segments, which combination prints out digits,
+  - LED Dots - pairs of LEDs, controlled by transistor *BC547B*.
+-  **Communication unit** - to achieve communication between microcomputer and chronometr, connection is maintained by *USB-RS232 Connector*.
+
 ## Technologies Used
 - **Python 3.11** – main implementation language  
 - **RPi.GPIO** – Raspberry Pi GPIO control  
@@ -39,7 +54,6 @@ It is optimized to run in a **standalone mode**, starting automatically on boot 
 ---
 
 ## System Architecture
-
 The system is divided into **three cooperating layers**:
 
 1. **Input (Communication Layer)**  
@@ -66,20 +80,14 @@ The system is divided into **three cooperating layers**:
 
 ---
 
-
 ## Project structure
 
 ```
 7segdisp_azsagh/
-├── 7seg.log
-├── 7seg.service
-├── main.py
-├── old             #test files, to be removed after finish of implementation ;)
-│   ├── test_komunikacja.py
-│   ├── test_led_2tasmy.py
-│   └── test_led.py
-├── README.md
-├── requirements.txt
+
+├── old (test files, to be removed after finish of implementation ;))
+│   └── ...
+├── venv
 ├── src
 │   ├── comm
 │   │   ├── config.py
@@ -90,8 +98,11 @@ The system is divided into **three cooperating layers**:
 │   └── stripe
 │       ├── config.py
 │       └── util.py
-└── venv
-    └── ...
+├── README.md
+├── requirements.txt
+├── 7seg.log
+├── 7seg.service
+└── main.py
 ```
 
 ## Installation & Usage
@@ -123,4 +134,4 @@ sudo systemctl start 7seg.service
 ## Author
 **Jakub Ciura** - Automation and Robotics student of AGH University.
 
-This project was originally developed as part of my engineering thesis - *Design of a Device Cooperating with Sports Timing Systems* - and extended for practical deployment.
+This project was originally developed as part of my engineering thesis - *Design of a Device Cooperating with Sports Timing Systems*. Currently, after achieving funding from University Management, it is being extended for practical deployment.
