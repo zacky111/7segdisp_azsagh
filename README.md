@@ -42,6 +42,16 @@ Device's architecture is devided into smaller parts by functionalities:
   - LED Stripes - programmable led stripes *WS2811*, put in 3D printed slots - each having 7 segments, which combination prints out digits,
   - LED Dots - pairs of LEDs, controlled by transistor *BC547B*.
 -  **Communication unit** - to achieve communication between microcomputer and chronometr, connection is maintained by *USB-RS232 Connector*.
+  
+## Electrical diagram
+
+- Power circuit
+  
+![Diagram - power](images/diagram-1.png)
+
+- Execution circuit
+
+![Diagram - appliances](images/diagram-2.png)
 
 ## Technologies Used
 - **Python 3.11** – main implementation language  
@@ -85,7 +95,7 @@ The system is divided into **three cooperating layers**:
 ```
 7segdisp_azsagh/
 
-├── old (test files, to be removed after finish of implementation ;))
+├── old
 │   └── ...
 ├── venv
 ├── images
@@ -107,7 +117,7 @@ The system is divided into **three cooperating layers**:
 ```
 
 ## Installation & Usage
-Clone the repository and create a Python virtual environment:
+Clone the repository and create a Python virtual environment on RPi:
 ```bash
 git clone https://github.com/zacky111/7segdisp_azsagh.git
 cd 7segdisp_azsagh
@@ -131,6 +141,17 @@ sudo systemctl enable 7seg.service
 sudo systemctl start 7seg.service
 ```
 
+---
+
+Code can be also run manually from PC, in order to debug or ensure proper communication between RaceTime's chronometer.
+``` bash
+git clone https://github.com/zacky111/7segdisp_azsagh.git
+cd 7segdisp_azsagh
+python3 -m venv venv
+venv/Scripts/activate
+pip install -r requirements.txt
+python main.py
+```
 
 ## Author
 **Jakub Ciura** - Automation and Robotics student of AGH University.
