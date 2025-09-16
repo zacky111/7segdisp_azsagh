@@ -9,8 +9,7 @@ It integrates with the **RaceTime** timing device and uses a **Raspberry Pi** as
 - display results on a **7-segment LED display**,
 - handle additional visual signals (status LEDs).
 
-The system was designed for **sports competitions**, ensuring clear, reliable, and immediate feedback for athletes and organizers.  
-It is optimized to run in a **standalone mode**, starting automatically on boot and tolerant to sudden power-offs.
+The system was designed for **sports competitions**, ensuring clear, reliable, and immediate feedback for athletes and organizers.  It is optimized to run in a **standalone mode**, starting automatically on boot and tolerant to sudden power-offs.
 
 ![Men slaloming](images/slalom1.jpg)
 
@@ -45,13 +44,46 @@ Device's architecture is devided into smaller parts by functionalities:
   
 ## Electrical diagram
 
-- Power circuit
+- **Power circuit**
   
 ![Diagram - power](images/diagram-1.png)
 
-- Execution circuit
+- **Execution circuit**
 
 ![Diagram - appliances](images/diagram-2.png)
+
+---
+
+## Mechanical Parts 
+
+Due to the specific requirements of the project, most of the custom-shaped components were 3D printed from PLA material. The most relevant parts briefly described in this study are:
+
+- **Socket for LED strips** (left)  
+- **Separator between sockets** (middle)  
+
+To ensure that the correct LEDs are illuminated, the proper order of printing and placement was carefully selected. The arrangement is presented on the right side of the image below.  
+
+![Mechanical parts - 1](images/mech_1.png)
+
+All sockets and separators are mounted on a **supporting plate**, which is enclosed in a box.  
+The **walls of the box** were not 3D-printed due to their large size; instead, they were made of waterproof plywood.  
+To improve durability in winter conditions (low temperatures and humidity), the entire construction was coated with a **protective outdoor paint**.  
+
+![Mechanical parts - 2](images/mech_2.png)
+
+Additional **sockets for peripheral utilities** were also designed. From left to right:  
+- handlebar mount  
+- RaceTime holder  
+- Makita battery holder  
+- Parkside battery holder  
+
+![Mechanical parts - 3](images/mech_3.png)
+
+The complete mechanical model of the device is shown below:  
+
+![Mechanical parts - 4](images/mech_4.png)
+
+---
 
 ## Technologies Used
 - **Python 3.11** – main implementation language  
@@ -60,6 +92,8 @@ Device's architecture is devided into smaller parts by functionalities:
 - **rpi_ws281x** – WS2812B LED strip driver for 7-segment display  
 - **systemd** – service management for auto-start  
 - **GitHub** – version control and documentation  
+
+
 
 ---
 
@@ -157,3 +191,7 @@ python main.py
 **Jakub Ciura** - Automation and Robotics student of AGH University.
 
 This project was originally developed as part of my engineering thesis - *Design of a Device Cooperating with Sports Timing Systems*. Currently, after achieving funding from University Management, it is being extended for practical deployment.
+
+<p align="center">
+  <img src="images/diagram-1.png" alt="pierwszy" width="200"/>
+</p>
