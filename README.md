@@ -191,7 +191,3 @@ python main.py
 **Jakub Ciura** - Automation and Robotics student of AGH University.
 
 This project was originally developed as part of my engineering thesis - *Design of a Device Cooperating with Sports Timing Systems*. Currently, after achieving funding from University Management, it is being extended for practical deployment.
-
-<p align="center">
-  <img src="images/diagram-1.png" alt="pierwszy" width="200"/>
-</p>
