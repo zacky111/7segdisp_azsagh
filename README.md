@@ -11,7 +11,7 @@ It integrates with the **RaceTime** timing device and uses a **Raspberry Pi** as
 
 The system was designed for **sports competitions**, ensuring clear, reliable, and immediate feedback for athletes and organizers.  It is optimized to run in a **standalone mode**, starting automatically on boot and tolerant to sudden power-offs.
 
-![Men slaloming](images/slalom1.jpg)
+![Men riding snowboard on slalom course.](images/slalom1.jpg)
 
 As a starting point, implementation is considered to be used with Time Control for **Snowboarding Slalom**, mostly as a device cooperating with Microgate appliances for measuring times.
 
