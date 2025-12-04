@@ -6,12 +6,12 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/azsagh/7segdisp_azsagh
-ExecStart=/home/azsagh/7segdisp_azsagh/venv/bin/python /home/azsagh/7segdisp_azsagh/main.py
+WorkingDirectory=/home/azsagh/7seg
+ExecStart=/home/azsagh/7seg/venv/bin/python /home/azsagh/7seg/main.py
 Restart=always
 RestartSec=2
-#StandardOutput=append:/home/azsagh/7segdisp_azsagh/7seg.log
-#StandardError=append:/home/azsagh/7segdisp_azsagh/7seg.log
+#StandardOutput=append:/home/azsagh/7seg/7seg.log
+#StandardError=append:/home/azsagh/7seg/7seg.log
 
 [Install]
 WantedBy=multi-user.target
