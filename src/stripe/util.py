@@ -1,4 +1,5 @@
-from rpi_ws281x import PixelStrip, Color
+import board
+from neopixel import NeoPixel
 
 import src.stripe.config as sc
 
@@ -31,35 +32,47 @@ liczbyWysw = {
     " ": []
 }
 
-colorMapping={
-    "red": Color(255, 0, 0),
-    "blue": Color(0,0, 255),
+# NeoPixel uses (R,G,B) tuples
+colorMapping = {
+    "red": (255, 0, 0),
+    "blue": (0, 0, 255),
 }
 
 
+def _board_pin_from_bcm(bcm_number):
+    """Spróbuj zwrócić board.D{n} dla podanego numeru BCM, fallback na D18."""
+    try:
+        return getattr(board, f"D{bcm_number}")
+    except Exception:
+        return board.D18
+
+
 def strip_init():
-	strip1 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_1, sc.LED_FREQ_HZ, sc.LED_DMA,
-					 sc.LED_INVERT, sc.LED_BRIGHTNESS, sc.LED_CHANNEL_0)
-	strip2 = PixelStrip(sc.LED_COUNT, sc.LED_PIN_2, sc.LED_FREQ_HZ, sc.LED_DMA,
-					 sc.LED_INVERT, sc.LED_BRIGHTNESS, sc.LED_CHANNEL_1)
-	strip1.begin()
-	strip2.begin()
-	return strip1, strip2
+    """Zwraca dwa obiekty NeoPixel (strip1, strip2)."""
+    pin1 = _board_pin_from_bcm(sc.LED_PIN_1)
+    pin2 = _board_pin_from_bcm(sc.LED_PIN_2)
+    # NeoPixel brightness przyjmuje 0.0-1.0
+    brightness = max(0.0, min(1.0, sc.LED_BRIGHTNESS / 255.0))
+    strip1 = NeoPixel(pin1, sc.LED_COUNT, brightness=brightness, auto_write=False)
+    strip2 = NeoPixel(pin2, sc.LED_COUNT, brightness=brightness, auto_write=False)
+    # wyzeruj od razu
+    clear_strip(strip1)
+    clear_strip(strip2)
+    return strip1, strip2
 
 def clear_strip(strip):
-	for i in range(strip.numPixels()):
-		strip.setPixelColor(i, Color(0, 0, 0))
-	strip.show()
+    for i in range(len(strip)):
+        strip[i] = (0, 0, 0)
+    strip.show()
 
-def print_strip(segm_to_print,strip1, strip2, color="red"):
-
+def print_strip(segm_to_print, strip1, strip2, color="red"):
+    col = colorMapping.get(color, (255, 0, 0))
     for i in range(sc.LED_COUNT):
-        strip1.setPixelColor(i, colorMapping[color] if i in segm_to_print[0] else Color(0, 0, 0))
-        strip2.setPixelColor(i, colorMapping[color] if i in segm_to_print[1] else Color(0, 0, 0))
+        strip1[i] = col if i in segm_to_print[0] else (0, 0, 0)
+        strip2[i] = col if i in segm_to_print[1] else (0, 0, 0)
     strip1.show()
     strip2.show()
 
-        
 
 def segm_from_frame(data_frame: list):
     segm_on_strip1 = []
