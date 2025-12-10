@@ -187,6 +187,12 @@ pip install -r requirements.txt
 python main.py
 ```
 
+---
+In favour of securily using MicroComputer, it is useful to run service *param_control*:
+```bash
+# to be added: instruction for running service
+```
+
 ## Author
 **Jakub Ciura** - Automation and Robotics student of AGH University.
 
