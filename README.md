@@ -202,6 +202,13 @@ sudo systemctl enable temp-watchdog.service
 sudo systemctl start temp-watchdog.service
 ```
 
+# To be added:
+```bash
+#creation of sd card image - simple data recovery
+
+#importing data image to empty (with or without os) sd card and launching rpi
+```
+
 ## Author
 **Jakub Ciura** - Automation and Robotics student of AGH University.
 
