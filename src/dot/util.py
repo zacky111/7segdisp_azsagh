@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
 import src.dot.config as dc
 
+GPIO.setwarnings(False)
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(dc.LED_PIN1, GPIO.OUT)
 GPIO.setup(dc.LED_PIN2, GPIO.OUT)
