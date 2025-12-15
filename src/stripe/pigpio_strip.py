@@ -29,7 +29,7 @@ class WS2812Strip:
                         pulses.append(pigpio.pulse(1 << self.gpio, 0, 800))
                         pulses.append(pigpio.pulse(0, 1 << self.gpio, 450))
                     else:
-                        pulses.append(pigpio.pulse(1 << self.gpio, 400))
+                        pulses.append(pigpio.pulse(1 << self.gpio, 0, 400))
                         pulses.append(pigpio.pulse(0, 1 << self.gpio, 850))
 
         self.pi.wave_add_generic(pulses)
