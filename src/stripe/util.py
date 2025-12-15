@@ -1,5 +1,5 @@
 import board
-from neopixel import NeoPixel
+import neopixel
 
 
 import src.stripe.config as sc
@@ -55,13 +55,30 @@ def strip_init():
     """Zwraca dwa obiekty NeoPixel (strip1, strip2)."""
     pin1 = _board_pin_from_bcm(sc.LED_PIN_1)
     pin2 = _board_pin_from_bcm(sc.LED_PIN_2)
-    # NeoPixel brightness przyjmuje 0.0-1.0
+
+    # NeoPixel brightness przyjmuje 0.0–1.0
     brightness = max(0.0, min(1.0, sc.LED_BRIGHTNESS / 255.0))
-    strip1 = NeoPixel(pin1, sc.LED_COUNT, brightness=brightness, auto_write=False, pixel_order=NeoPixel.GRB)
-    strip2 = NeoPixel(pin2, sc.LED_COUNT, brightness=brightness, auto_write=False, pixel_order=NeoPixel.GRB)
+
+    strip1 = neopixel.NeoPixel(
+        pin1,
+        sc.LED_COUNT,
+        brightness=brightness,
+        auto_write=False,
+        pixel_order=neopixel.GRB
+    )
+
+    strip2 = neopixel.NeoPixel(
+        pin2,
+        sc.LED_COUNT,
+        brightness=brightness,
+        auto_write=False,
+        pixel_order=neopixel.GRB
+    )
+
     # wyzeruj od razu
     clear_strip(strip1)
     clear_strip(strip2)
+
     return strip1, strip2
 
 def clear_strip(strip):
