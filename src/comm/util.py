@@ -3,12 +3,16 @@ import serial
 from src.comm.config import PORT, BAUD, parity, stopbits, bytesize, timeout
 
 def ser_init():
-    ser = serial.Serial(PORT, BAUD, parity=parity,
-                    stopbits=stopbits,
-                    bytesize=bytesize,
-                    timeout=timeout)
-    print(f"Otwarty port: {ser.portstr}")
-    return ser
+    try:
+        ser = serial.Serial(PORT, BAUD, parity=parity,
+                        stopbits=stopbits,
+                        bytesize=bytesize,
+                        timeout=timeout)
+        print(f"Otwarty port: {ser.portstr}")
+        return ser
+    except Exception as e:
+        print(f"Błąd otwarcia portu szeregowego: {e}")
+        return None
 
 def parse_time_str(tstr):
     try:
