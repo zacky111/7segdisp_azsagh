@@ -226,10 +226,13 @@ thread_disp = threading.Thread(target=display_func, daemon=True)
 dots_on()
 
 thread_comm.start()
+print("Wątek komunikacji uruchomiony")
 thread_disp.start()
+print("Wątek wyświetlania uruchomiony")
 
 try:
     while True:
         time.sleep(1)
+        print(".")
 except KeyboardInterrupt:
     signal_handler(None, None)
