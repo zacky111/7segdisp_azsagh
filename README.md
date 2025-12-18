@@ -131,7 +131,6 @@ The system is divided into **three cooperating layers**:
 
 ├── old
 │   └── ...
-├── venv
 ├── images
 ├── src
 │   ├── comm
@@ -140,13 +139,16 @@ The system is divided into **three cooperating layers**:
 │   ├── dot
 │   │   ├── config.py
 │   │   └── util.py
-│   └── stripe
-│       ├── config.py
-│       └── util.py
+│   │── stripe
+│   │   ├── config.py
+│   │   └── util.py
+│   └── temp-watchdog.sh
+├── services
+│   ├── 7seg.service
+│   └── temp-watchdog.service
 ├── README.md
 ├── requirements.txt
 ├── 7seg.log
-├── 7seg.service
 └── main.py
 ```
 

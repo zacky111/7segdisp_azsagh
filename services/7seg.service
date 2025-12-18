@@ -1,4 +1,4 @@
-# /etc/systemd/system/
+# /etc/systemd/system/7seg.service
 [Unit]
 Description=7seg Display Service
 After=network.target
@@ -7,11 +7,11 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/home/azsagh/7seg
-ExecStart=/home/azsagh/7seg/venv/bin/python /home/azsagh/7seg/main.py
+ExecStart=/usr/bin/python3 /home/azsagh/7seg/main.py
 Restart=always
 RestartSec=2
-#StandardOutput=append:/home/azsagh/7seg/7seg.log
-#StandardError=append:/home/azsagh/7seg/7seg.log
+StandardOutput=append:/home/azsagh/7seg/services/logs/7seg.log
+StandardError=append:/home/azsagh/7seg/services/logs/7seg.log
 
 [Install]
 WantedBy=multi-user.target

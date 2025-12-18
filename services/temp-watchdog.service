@@ -1,11 +1,13 @@
+# /etc/systemd/system/tem-watchdog.service
 [Unit]
 Description=Raspberry Pi Temperature Watchdog
 After=network.target
-Wants=led-driver.service
+# Jeśli nie masz led-driver.service, można to skomentować
+# Wants=led-driver.service
 
 [Service]
 Type=simple
-ExecStart=/home/azsagh/7seg/main.py/src/temp-watchdog.sh
+ExecStart=/home/azsagh/7seg/src/temp-watchdog.sh
 Restart=always
 RestartSec=2
 User=root
@@ -13,6 +15,8 @@ User=root
 NoNewPrivileges=yes
 ProtectSystem=full
 ProtectHome=yes
+StandardOutput=append:/home/azsagh/7seg/temp-watchdog.log
+StandardError=append:/home/azsagh/7seg/temp-watchdog.log
 
 [Install]
 WantedBy=multi-user.target
