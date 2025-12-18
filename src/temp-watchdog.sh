@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 THRESHOLD=60       # temperatura w °C
 INTERVAL=30         # interwał sprawdzania [s]
