@@ -39,6 +39,10 @@ def comm_func():
     global last_frame_time
 
     ser = ser_init()
+    if ser is None:
+        print("[COMM] Brak UART – wątek komunikacji wyłączony")
+        return
+
     buffer = ""
 
     while not stop_event.is_set():
