@@ -170,6 +170,8 @@ Or enable auto-start on boot (systemd service) - sollution possible on Raspberry
 
 ``` bash
 sudo cp 7seg.service /etc/systemd/system/
+sudo chmod 644 /etc/systemd/system/7seg.service
+
 sudo systemctl daemon-reload
 sudo systemctl enable 7seg.service
 sudo systemctl start 7seg.service
@@ -185,6 +187,26 @@ python3 -m venv venv
 venv/Scripts/activate
 pip install -r requirements.txt
 python main.py
+```
+
+---
+In favour of securily using MicroComputer, it is useful to run service *param_control*:
+```bash
+#add permission for all users (root needed)
+sudo chmod +x /usr/local/bin/temp-watchdog.sh
+sudo cp src/temp-watchdog.service /etc/systemd/system/
+sudo chmod 644 /etc/systemd/system/temp-watchdog.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable temp-watchdog.service
+sudo systemctl start temp-watchdog.service
+```
+
+# To be added:
+```bash
+#creation of sd card image - simple data recovery
+
+#importing data image to empty (with or without os) sd card and launching rpi
 ```
 
 ## Author
