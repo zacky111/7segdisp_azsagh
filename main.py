@@ -135,6 +135,11 @@ def display_func():
     while not stop_event.is_set():
         now = time.time()
 
+        #test!!!
+        digits = [' ', ' ', ' ', ' ', ' ', ' ', ' ', '8']
+        segm_to_print = segm_from_frame(digits)
+        print_strip(segm_to_print, strip1, strip2, color="blue")
+
         # --- tryb "brak ramek" ---
         if now - last_frame_time > 10:
             if not no_data_mode:
@@ -201,10 +206,7 @@ def display_func():
         if minutes == 0 and seconds < 10:
             digits[4] = ' '
 
-        #segm_to_print = segm_from_frame(digits)
-
-        #test print!
-        segm_to_print = [segm_from_frame(['8']*8)[i] for i in range(8)] if no_data_mode else segm_to_print
+        segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print, strip1, strip2)
         time.sleep(0.01)
 
