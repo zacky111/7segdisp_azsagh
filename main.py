@@ -136,7 +136,7 @@ def display_func():
         now = time.time()
 
         #test!!!
-        digits = [' ', ' ', ' ', ' ', ' ', ' ', ' ', '8']
+        digits = ['8', '8', '8', '8', '8', '8', '8', '8']
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print, strip1, strip2, color="blue")
 
