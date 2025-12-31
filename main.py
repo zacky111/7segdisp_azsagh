@@ -5,6 +5,7 @@ import re
 import threading
 import serial
 import RPi.GPIO as GPIO
+import subprocess
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
@@ -259,7 +260,20 @@ def signal_handler(sig, frame):
     stop_event.set()
     thread_comm.join()
     thread_disp.join()
-    GPIO.cleanup()
+    try:
+        GPIO.cleanup()
+    except Exception:
+        pass
+
+    # Jeśli żądane przez przycisk — wykonaj systemowe wyłączenie
+    try:
+        import src.shutdown_button.util as sbu
+        if getattr(sbu, 'shutdown_requested', False):
+            print("[SYSTEM] Shutdown requested by button — executing shutdown")
+            subprocess.Popen(['/usr/sbin/shutdown', '-h', 'now'])
+    except Exception as e:
+        print(f"[SYSTEM] Failed to execute shutdown: {e}")
+
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
