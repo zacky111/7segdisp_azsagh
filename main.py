@@ -66,7 +66,10 @@ def comm_func():
             raw = ser.read(ser.in_waiting)
             part = raw.decode('latin-1', errors='replace')
 
-            if part != b'\\x10\\x10\\x10\\x10\\x10\\x10\\x10':
+            # ignore filler consisting only of DLE (0x10) bytes
+            if part and all(ch == '\x10' for ch in part):
+                print(f"[COMM] Odrzucono {len(part)} bajt(ów) 0x10 (DLE)")
+            else:
                 buffer += part
             
 
