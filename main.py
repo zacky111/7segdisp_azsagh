@@ -9,12 +9,16 @@ import RPi.GPIO as GPIO
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
 from src.comm.util import ser_init, parse_time_str, ping_comm_func
+from src.shutdown_button.util import button_init, power_button_callback
 
 # ---------------- LED SETUP ----------------
 strip1, strip2 = strip_init()
 
-# ---------------- DOTS -------------------------
+# ---------------- DOTS SETUP -------------------------
 dot_init()
+
+# ---------------- SHUTDOWN BUTTON SETUP ----------------
+button_init()
 
 # ---------------- COMMUNICATION ----------------
 stop_event = threading.Event()
@@ -242,6 +246,9 @@ def display_func():
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print, strip1, strip2)
         time.sleep(0.01)
+
+def shutdown_button_handler():
+    power_button_callback()
 
 
 # ---------------- SIGNAL HANDLER ----------------
