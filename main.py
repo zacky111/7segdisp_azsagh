@@ -82,11 +82,13 @@ def comm_func():
 
             buffer += part
 
+            """
             #Debiuggowanie surowych danych
             print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
             print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
             print("--------------------------------------------------")
-
+            """
+            
             while '\x03' in buffer:
                 start = buffer.find('\x1b')
                 if start == -1:
