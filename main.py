@@ -51,6 +51,9 @@ def comm_func():
             part = raw.decode('latin-1', errors='replace')
             buffer += part
 
+            print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
+            print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
+
             while '\x03' in buffer:
                 start = buffer.find('\x1b')
                 if start == -1:
