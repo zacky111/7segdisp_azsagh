@@ -49,5 +49,8 @@ def racetime_alive(ser, timeout=0.2):
 def ping_comm_func(ser):
     try:
         ser.write(b'\x1bAS01    0.00\x03')   # ESC ... ETX
+        print("[COMM] Wysłano ping do racetime")
     except (OSError, serial.SerialException):
+        print("[COMM] Błąd wysyłania pinga do racetime")
         pass
+    
