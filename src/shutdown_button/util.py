@@ -14,6 +14,7 @@ def power_button_callback():
     if GPIO.input(sbc.SHUTDOWN_BUTTON_PIN) == GPIO.LOW:
         # przycisk wciśnięty
         power_btn_pressed_at = time.time()
+        print("[POWER] Shutdown button pressed")
     else:
         # przycisk puszczony
         if power_btn_pressed_at is None:

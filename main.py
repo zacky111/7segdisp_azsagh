@@ -267,11 +267,13 @@ signal.signal(signal.SIGINT, signal_handler)
 # ---------------- RUN THREADS ----------------
 thread_comm = threading.Thread(target=comm_func, daemon=True)
 thread_disp = threading.Thread(target=display_func, daemon=True)
+thread_button= threading.Thread(target=shutdown_button_handler, daemon=True)
 
 dots_on()
 
 thread_comm.start()
 thread_disp.start()
+thread_button.start()
 
 try:
     while True:
