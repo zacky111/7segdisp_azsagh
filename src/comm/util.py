@@ -48,6 +48,6 @@ def racetime_alive(ser, timeout=0.2):
 
 def ping_comm_func(ser):
     try:
-        ser.write(b'\x1bPING\x03')   # ESC ... ETX
+        ser.write(b'\x1bAS01    0.00\x03')   # ESC ... ETX
     except (OSError, serial.SerialException):
         pass
