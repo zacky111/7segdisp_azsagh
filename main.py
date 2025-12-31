@@ -65,15 +65,16 @@ def comm_func():
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
             part = raw.decode('latin-1', errors='replace')
-            if part != "\\x10":
+            if part not in ['\\x10','\x10']:
                 buffer += part
+            
 
             
             #Debiuggowanie surowych danych
             
             print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
             print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
-            
+            print("--------------------------------------------------")
 
             while '\x03' in buffer:
                 start = buffer.find('\x1b')
