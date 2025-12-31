@@ -66,7 +66,7 @@ def comm_func():
             raw = ser.read(ser.in_waiting)
             part = raw.decode('latin-1', errors='replace')
 
-            if part != b'\x10\x10\x10\x10\x10\x10\x10\x10\x10':
+            if part != b'\\x10\\x10\\x10\\x10\\x10\\x10\\x10':
                 buffer += part
             
 
