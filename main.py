@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
-from src.comm.util import ser_init, parse_time_str
+from src.comm.util import ser_init, parse_time_str, check_serial_alive
 
 # ---------------- LED SETUP ----------------
 strip1, strip2 = strip_init()
@@ -32,11 +32,16 @@ last_frame_time = time.time()
 no_data_mode = False
 no_data_until = 0.0
 
+# zmienne sprawdzające czy usb (d-sub) dalej podłączone
+serial_alive = True
+last_serial_check = 0.0
+
 
 def comm_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
     global last_frame_time
+    global serial_alive, last_serial_check
 
     ser = ser_init()
     if ser is None:
@@ -46,11 +51,30 @@ def comm_func():
     buffer = ""
 
     while not stop_event.is_set():
+
+        # Sprawdzanie czy port szeregowy jest nadal podłączony
+        now = time.time()
+
+        # --- watchdog portu USB (co 5 s) ---
+        if now - last_serial_check > 5:
+            last_serial_check = now
+            alive = check_serial_alive(ser)
+
+            if not alive:
+                serial_alive = False
+                print("[COMM] - PORT USB NIEAKTYWNY")
+                break   # ← NA RAZIE wychodzimy z wątku
+            else:
+                serial_alive = True
+
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
             part = raw.decode('latin-1', errors='replace')
             buffer += part
 
+            """
+            #Debiuggowanie surowych danych
+            """
             print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
             print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
 

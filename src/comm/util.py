@@ -22,3 +22,11 @@ def parse_time_str(tstr):
         return val, secs, ms
     except Exception:
         return None, None, None
+    
+def check_serial_alive(ser):
+    try:
+        # lekkie zapytanie – NIC nie wysyła do urządzenia
+        ser.in_waiting
+        return True
+    except (OSError, serial.SerialException):
+        return False
