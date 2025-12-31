@@ -1,4 +1,5 @@
 import serial
+import time
 
 from src.comm.config import PORT, BAUD, parity, stopbits, bytesize, timeout
 
@@ -23,20 +24,30 @@ def parse_time_str(tstr):
     except Exception:
         return None, None, None
     
-def check_serial_alive(ser):
+
+def racetime_alive(ser, timeout=0.2):
     try:
-        # lekkie zapytanie – NIC nie wysyła do urządzenia
-        ser.in_waiting
-        return True
+        #ser.reset_input_buffer()
+
+        # PRZYKŁAD: ramka zapytania (sprawdź dokładny format w manualu!)
+        ser.write(b'\x1bST\x03')   # ESC ... ETX
+
+        start = time.time()
+        buf = ""
+
+        while time.time() - start < timeout:
+            if ser.in_waiting:
+                buf += ser.read(ser.in_waiting).decode('latin-1', errors='ignore')
+                if '\x03' in buf:
+                    return True   # odpowiedź przyszła
+
+        return False
     except (OSError, serial.SerialException):
         return False
     
-def check_rs232_lines(ser):
+
+def ping_comm_func(ser):
     try:
-        return {
-            "DSR": ser.getDSR(),
-            "CTS": ser.getCTS(),
-            "CD":  ser.getCD()
-        }
+        ser.write(b'\x1bPING\x03')   # ESC ... ETX
     except (OSError, serial.SerialException):
-        return None
+        pass

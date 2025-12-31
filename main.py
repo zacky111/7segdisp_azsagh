@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
-from src.comm.util import ser_init, parse_time_str, check_serial_alive, check_rs232_lines
+from src.comm.util import ser_init, parse_time_str, ping_comm_func
 
 # ---------------- LED SETUP ----------------
 strip1, strip2 = strip_init()
@@ -32,12 +32,6 @@ last_frame_time = time.time()
 no_data_mode = False
 no_data_until = 0.0
 
-# zmienne sprawdzające czy usb (d-sub) dalej podłączone
-serial_alive = True
-last_serial_check = 0.0
-
-rs232_present = None
-last_rs232_check = 0.0
 
 
 def comm_func():
@@ -61,33 +55,11 @@ def comm_func():
         # Sprawdzanie czy port szeregowy jest nadal podłączony
         now = time.time()
 
-        # --- watchdog portu USB (co 5 s) ---
+        # --- próba - ping do racetime---
         if now - last_serial_check > 5:
+            ping_comm_func(ser)
             last_serial_check = now
-            alive = check_serial_alive(ser)
 
-            if not alive:
-                serial_alive = False
-                print("[COMM] - PORT USB NIEAKTYWNY")
-                break   # ← NA RAZIE wychodzimy z wątku
-            else:
-                serial_alive = True
-
-        
-        now = time.time()
-        if now - last_rs232_check > 5:
-            last_rs232_check = now
-            status = check_rs232_lines(ser)
-
-            if status is None:
-                print("[COMM] RS232: błąd odczytu linii")
-                rs232_present = False
-            else:
-                print(f"[COMM] RS232 linie: {status}")
-
-                # heurystyka – JAKAKOLWIEK linia aktywna
-                rs232_present = any(status.values())
-        
 
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
