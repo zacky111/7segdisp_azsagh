@@ -41,6 +41,7 @@ def comm_func():
 
     global serial_alive, last_serial_check
     global rs232_present, last_rs232_check
+    last_serial_check = 0.0
 
 
     ser = ser_init()
