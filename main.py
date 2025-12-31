@@ -69,13 +69,15 @@ def comm_func():
             # ignore filler consisting only of DLE (0x10) bytes
             if part and all(ch == '\x10' for ch in part):
                 print(f"[COMM] Odrzucono {len(part)} bajt(ów) 0x10 (DLE)")
-            else:
-                buffer += part
-            
+                continue
 
-            
+            # remove any DLE bytes inside mixed fragments
+            if '\x10' in part:
+                part = part.replace('\x10', '')
+
+            buffer += part
+
             #Debiuggowanie surowych danych
-            
             print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
             print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
             print("--------------------------------------------------")
