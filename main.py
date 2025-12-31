@@ -57,9 +57,9 @@ def comm_func():
         now = time.time()
 
         # --- próba - ping do racetime---
-        if now - last_serial_check > 5:
+        """if now - last_serial_check > 5:
             ping_comm_func(ser)
-            last_serial_check = now
+            last_serial_check = now"""
 
 
         if ser.in_waiting > 0:
@@ -67,12 +67,12 @@ def comm_func():
             part = raw.decode('latin-1', errors='replace')
             buffer += part
 
-            """
+            
             #Debiuggowanie surowych danych
             
             print(f"[COMM] Otrzymano dane: {part.encode('unicode_escape')}")
             print(f"[COMM] Bufor: {buffer.encode('unicode_escape')}")
-            """
+            
 
             while '\x03' in buffer:
                 start = buffer.find('\x1b')
