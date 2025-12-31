@@ -30,3 +30,13 @@ def check_serial_alive(ser):
         return True
     except (OSError, serial.SerialException):
         return False
+    
+def check_rs232_lines(ser):
+    try:
+        return {
+            "DSR": ser.getDSR(),
+            "CTS": ser.getCTS(),
+            "CD":  ser.getCD()
+        }
+    except (OSError, serial.SerialException):
+        return None

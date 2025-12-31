@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 
 from src.dot.util import dot_init, dots_on, dots_off
 from src.stripe.util import strip_init, clear_strip, print_strip, segm_from_frame
-from src.comm.util import ser_init, parse_time_str, check_serial_alive
+from src.comm.util import ser_init, parse_time_str, check_serial_alive, check_rs232_lines
 
 # ---------------- LED SETUP ----------------
 strip1, strip2 = strip_init()
@@ -36,12 +36,18 @@ no_data_until = 0.0
 serial_alive = True
 last_serial_check = 0.0
 
+rs232_present = None
+last_rs232_check = 0.0
+
 
 def comm_func():
     global start_time_local, display_time, running, finished
     global finish_time_shown_until, blink_state, blink_last_toggle
     global last_frame_time
+
     global serial_alive, last_serial_check
+    global rs232_present, last_rs232_check
+
 
     ser = ser_init()
     if ser is None:
@@ -66,6 +72,22 @@ def comm_func():
                 break   # ← NA RAZIE wychodzimy z wątku
             else:
                 serial_alive = True
+
+        
+        now = time.time()
+        if now - last_rs232_check > 5:
+            last_rs232_check = now
+            status = check_rs232_lines(ser)
+
+            if status is None:
+                print("[COMM] RS232: błąd odczytu linii")
+                rs232_present = False
+            else:
+                print(f"[COMM] RS232 linie: {status}")
+
+                # heurystyka – JAKAKOLWIEK linia aktywna
+                rs232_present = any(status.values())
+        
 
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
