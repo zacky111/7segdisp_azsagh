@@ -65,7 +65,8 @@ def comm_func():
         if ser.in_waiting > 0:
             raw = ser.read(ser.in_waiting)
             part = raw.decode('latin-1', errors='replace')
-            buffer += part
+            if part != "\\x10":
+                buffer += part
 
             
             #Debiuggowanie surowych danych
