@@ -135,10 +135,12 @@ def display_func():
     while not stop_event.is_set():
         now = time.time()
 
-        #test!!!
+        """
+        #test part - put on just to see if display works
         digits = ['8', '8', '8', '8', '8', '8', '8', '8']
         segm_to_print = segm_from_frame(digits)
         print_strip(segm_to_print, strip1, strip2, color="blue")
+        """
 
         # --- tryb "brak ramek" ---
         if now - last_frame_time > 10:
